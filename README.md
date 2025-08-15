@@ -1,228 +1,344 @@
-# Mapa de Lugares - Aplicación Web Interactiva
+# 🍽️ Restaurants Map - Aplicación de Restaurantes Interactiva
 
-Una aplicación web responsiva desarrollada con Next.js, React, Tailwind CSS y Mapbox GL JS que muestra un mapa interactivo con restaurantes, conciertos y bares.
+Una aplicación web moderna y responsiva para descubrir y gestionar restaurantes, bares y eventos en La Habana, Cuba.
 
-## 🚀 Características
+## ✨ Características Principales
 
-### Mapa Interactivo
-- **Estilo minimalista**: Mapa limpio sin elementos innecesarios
-- **Geolocalización**: Centra automáticamente el mapa en la ubicación del usuario
-- **Marcadores personalizados**: Iconos SVG según categoría (restaurante, concierto, bar)
-- **Animaciones suaves**: Vuelo animado hacia marcadores seleccionados
+### 🗺️ Mapa Interactivo
+- **Mapbox GL JS** con estilo limpio y minimalista
+- **Marcadores personalizados** por categoría (restaurante, bar, concierto)
+- **Geolocalización** del usuario
+- **Navegación fluida** con animaciones
+- **Filtros y búsqueda** en tiempo real
 
-### Panel Lateral
-- **Información completa**: Nombre, dirección, descripción
-- **Galería de fotos**: Carrusel con Swiper.js
-- **Sistema de reseñas**: Ver y agregar reseñas
-- **Contenido dinámico**:
-  - **Restaurantes**: Menú digital y reservas
-  - **Conciertos**: Información de eventos y compra de entradas
-  - **Bares**: Carta de bebidas
+### 📱 Panel de Información
+- **Panel lateral responsivo** con información detallada
+- **Galería de fotos** con Swiper.js
+- **Sistema de reseñas** con calificaciones
+- **Redes sociales** integradas
+- **Menús digitales** completos
 
-### Diseño y UX
-- **Responsive**: Optimizado para móviles y desktop
-- **Modo oscuro**: Soporte completo para tema oscuro
-- **Animaciones**: Transiciones suaves y efectos visuales
-- **Accesibilidad**: Elementos accesibles y navegación intuitiva
+### 🔐 Sistema de Administración
+- **Autenticación segura** con Firebase (preparado)
+- **Panel de administración** completo
+- **Gestión de restaurantes** con formularios avanzados
+- **Moderación de reseñas**
+- **Estadísticas en tiempo real**
 
-## 🏗️ Arquitectura
+### 📋 Formularios Avanzados
+- **Formik + Yup** para validación robusta
+- **Componentes reutilizables** para campos de formulario
+- **Validación en tiempo real** con mensajes de error claros
+- **Manejo de estado** optimizado
+- **Experiencia de usuario** mejorada
 
-El proyecto sigue la metodología **Atomic Design**:
+### 🚨 Manejo de Errores y Estados
+- **Páginas de error 404** personalizadas y atractivas
+- **Páginas de error global** para errores inesperados
+- **Páginas de loading** con animaciones suaves
+- **Estados de carga** consistentes en toda la aplicación
+- **Manejo de errores** robusto y amigable
 
-```
-components/
-├── atoms/          # Componentes básicos (Button, Rating, CategoryIcon)
-├── molecules/      # Combinaciones de átomos (PhotoCarousel, ReviewSection)
-├── organisms/      # Componentes complejos (MapView, SidePanel, MarkerCustom)
-└── templates/      # Layouts (MapLayout)
-```
+## 🚀 Tecnologías Utilizadas
 
-## 🛠️ Tecnologías
+### Frontend
+- **React 18** - Biblioteca de interfaz de usuario
+- **Next.js 14** - Framework de React con App Router
+- **TypeScript** - Tipado estático
+- **Tailwind CSS** - Framework de CSS utilitario
+- **Formik** - Manejo de formularios
+- **Yup** - Validación de esquemas
+- **Lucide React** - Iconografía moderna
 
-- **Next.js 14**: Framework de React
-- **TypeScript**: Tipado estático
-- **Tailwind CSS**: Framework de CSS utility-first
-- **Mapbox GL JS**: Mapas interactivos
-- **Swiper.js**: Carrusel de imágenes
-- **Lucide React**: Iconos
-- **clsx**: Utilidad para clases CSS condicionales
+### Mapas y Geolocalización
+- **Mapbox GL JS** - Mapas interactivos
+- **Mapbox Directions API** - Cálculo de rutas
+
+### UI/UX
+- **Swiper.js** - Carruseles táctiles
+- **clsx** - Utilidad para clases CSS condicionales
+- **Animaciones CSS** personalizadas
+
+### Internacionalización
+- **next-intl** - Soporte multiidioma
 
 ## 📦 Instalación
 
-1. **Clonar el repositorio**:
+### Prerrequisitos
+- Node.js 18+ 
+- npm o yarn
+- Token de Mapbox
+
+### Pasos de Instalación
+
+1. **Clonar el repositorio**
 ```bash
-git clone <url-del-repositorio>
-cd restaurants-map-app
+git clone <repository-url>
+cd restaurants
 ```
 
-2. **Instalar dependencias**:
+2. **Instalar dependencias**
 ```bash
 npm install
 ```
 
-3. **Configurar Mapbox**:
-   - Obtener un token de acceso en [Mapbox Account](https://account.mapbox.com/access-tokens/)
-   - Crear archivo `.env.local` y agregar:
-   ```bash
-   NEXT_PUBLIC_MAPBOX_TOKEN=tu_token_de_mapbox_aqui
-   ```
+3. **Configurar variables de entorno**
+```bash
+cp .env.example .env.local
+```
 
-4. **Ejecutar en desarrollo**:
+Editar `.env.local` y agregar tu token de Mapbox:
+```env
+NEXT_PUBLIC_MAPBOX_TOKEN=tu_token_de_mapbox_aqui
+```
+
+4. **Ejecutar en desarrollo**
 ```bash
 npm run dev
 ```
 
-5. **Abrir en el navegador**:
+5. **Abrir en el navegador**
 ```
 http://localhost:3000
 ```
 
-## 🔧 Configuración
+## 🗺️ Configuración de Mapbox
 
-### Variables de Entorno
+### 1. Crear cuenta en Mapbox
+- Ve a [mapbox.com](https://mapbox.com)
+- Crea una cuenta gratuita
+- Obtén tu token de acceso público
 
-Crear un archivo `.env.local`:
+### 2. Configurar el token
+- Copia el token en tu archivo `.env.local`
+- El token debe tener permisos para:
+  - Mapbox GL JS
+  - Mapbox Directions API
+  - Geocoding API
 
-```env
-# Mapbox
-NEXT_PUBLIC_MAPBOX_TOKEN=tu_token_de_mapbox
+### 3. Personalizar estilos
+- Puedes cambiar el estilo del mapa en `MapView.tsx`
+- Estilos disponibles: `streets-v12`, `light-v11`, `dark-v11`, etc.
 
-# n8n (opcional)
-NEXT_PUBLIC_N8N_BASE_URL=http://localhost:5678
-NEXT_PUBLIC_N8N_API_KEY=tu_api_key_de_n8n
+## 📁 Estructura del Proyecto
+
+```
+restaurants/
+├── app/                          # App Router de Next.js
+│   ├── [locale]/                 # Rutas internacionalizadas
+│   │   ├── admin/                # Panel de administración
+│   │   │   ├── login/            # Página de login
+│   │   │   ├── restaurants/      # Gestión de restaurantes
+│   │   │   └── reviews/          # Gestión de reseñas
+│   │   ├── menu/                 # Páginas de menús
+│   │   ├── loading.tsx           # Página de carga
+│   │   ├── not-found.tsx         # Página 404
+│   │   └── page.tsx              # Página principal
+│   ├── loading.tsx               # Página de carga global
+│   ├── error.tsx                 # Página de error global
+│   ├── not-found.tsx             # Página 404 global
+│   ├── globals.css               # Estilos globales
+│   └── layout.tsx                # Layout raíz
+├── components/                   # Componentes React
+│   ├── atoms/                    # Componentes atómicos
+│   │   ├── Button.tsx
+│   │   ├── FormField.tsx         # Campo de formulario reutilizable
+│   │   ├── FormButton.tsx        # Botón de formulario reutilizable
+│   │   └── ...
+│   ├── molecules/                # Componentes moleculares
+│   │   ├── PhotoCarousel.tsx
+│   │   ├── ReviewSection.tsx
+│   │   ├── SocialMediaLinks.tsx
+│   │   └── MapFilters.tsx
+│   ├── organisms/                # Componentes orgánicos
+│   │   ├── MapView.tsx
+│   │   └── SidePanel.tsx
+│   └── templates/                # Plantillas
+│       └── MapLayout.tsx
+├── hooks/                        # Hooks personalizados
+│   └── useFormikForm.ts          # Hook para formularios
+├── utils/                        # Utilidades
+│   ├── urlHelpers.ts             # Helpers para URLs
+│   └── validationSchemas.ts      # Esquemas de validación
+├── types/                        # Tipos TypeScript
+│   └── index.ts
+├── data/                         # Datos de ejemplo
+│   └── places.json
+└── services/                     # Servicios (preparados)
+    ├── firebase.ts
+    └── n8n.ts
 ```
 
-### Datos de Prueba
+## 🎯 Funcionalidades Detalladas
 
-Los datos están en `data/places.json` con la siguiente estructura:
+### Formularios con Formik y Yup
 
-```json
-{
-  "places": [
-    {
-      "id": "1",
-      "name": "Nombre del lugar",
-      "category": "restaurant|concert|bar",
-      "address": "Dirección completa",
-      "coordinates": {
-        "lng": -3.7038,
-        "lat": 40.4168
-      },
-      "description": "Descripción del lugar",
-      "photos": ["url1", "url2"],
-      "rating": 4.5,
-      "reviews": [...],
-      "menu": [...],
-      "event": {...}
+#### Componentes Reutilizables
+- **FormField**: Campo de formulario con validación integrada
+- **FormButton**: Botón con estados de carga y variantes
+- **useFormikForm**: Hook personalizado para manejo de formularios
+
+#### Esquemas de Validación
+```typescript
+// Ejemplo de esquema de validación
+const RestaurantSchema = Yup.object().shape({
+  name: Yup.string()
+    .min(2, 'El nombre debe tener al menos 2 caracteres')
+    .max(100, 'El nombre no puede exceder 100 caracteres')
+    .required('El nombre es requerido'),
+  email: Yup.string()
+    .email('Formato de email inválido'),
+  phone: Yup.string()
+    .matches(/^[\+]?[0-9\s\-\(\)]+$/, 'Formato de teléfono inválido')
+});
+```
+
+#### Uso de FormField
+```typescript
+<FormField
+  name="email"
+  label="Correo Electrónico"
+  type="email"
+  placeholder="tu@email.com"
+  icon={<Mail className="w-4 h-4" />}
+  required
+/>
+```
+
+### Panel de Administración
+
+#### Autenticación
+- **Login con email/password**
+- **Login con Google** (preparado para Firebase)
+- **Validación de formularios** con Formik + Yup
+- **Manejo de errores** robusto
+
+#### Gestión de Restaurantes
+- **Crear restaurantes** con formulario completo
+- **Selección de ubicación** con Mapbox
+- **Subida de fotos** múltiples
+- **Gestión de menús** dinámica
+- **Redes sociales** integradas
+
+#### Moderación de Reseñas
+- **Aprobar/rechazar** reseñas
+- **Filtros avanzados** por restaurante, rating, estado
+- **Estadísticas** en tiempo real
+- **Acciones masivas**
+
+### Navegación y URLs
+
+#### URLs de Compartir
+```
+/es?place=labodeguitadelmedio
+/es?lat=23.1136&lng=-82.3666
+/es/menu/1
+```
+
+#### Navegación Inteligente
+- **Parámetros de URL** para mantener contexto
+- **Limpieza automática** de parámetros
+- **Apertura automática** del panel al regresar
+
+### Manejo de Errores y Estados
+
+#### Páginas de Error
+- **404 Personalizada**: Diseño atractivo con ilustraciones temáticas
+- **Error Global**: Manejo de errores inesperados con detalles en desarrollo
+- **Navegación de Recuperación**: Botones para volver al inicio o intentar de nuevo
+
+#### Páginas de Loading
+- **Loading Global**: Animaciones suaves con iconos temáticos
+- **Estados de Carga**: Indicadores de progreso y mensajes informativos
+- **Experiencia Consistente**: Diseño coherente en toda la aplicación
+
+#### Características de las Páginas de Error
+- **Diseño Responsivo**: Adaptable a todos los dispositivos
+- **Modo Oscuro**: Soporte completo para tema oscuro
+- **Animaciones**: Elementos animados para mejor UX
+- **Navegación Clara**: Botones de acción bien definidos
+- **Información Útil**: Consejos y opciones de recuperación
+
+## 🔧 Configuración Avanzada
+
+### Personalización de Estilos
+```css
+/* En tailwind.config.js */
+theme: {
+  extend: {
+    colors: {
+      primary: {
+        50: '#f0f9ff',
+        500: '#3b82f6',
+        600: '#2563eb',
+        700: '#1d4ed8',
+      }
     }
-  ]
+  }
 }
 ```
 
-## 🔌 Integraciones Futuras
-
-### Firebase
-- Carga de datos desde Firestore
-- Autenticación de usuarios
-- Almacenamiento de reseñas y reservas
-
-### n8n
-- Automatización de reservas
-- Procesamiento de compras de entradas
-- Notificaciones por email/SMS
-
-## 📱 Responsive Design
-
-La aplicación está optimizada para:
-- **Móviles**: Panel lateral a pantalla completa
-- **Tablets**: Panel lateral con overlay
-- **Desktop**: Panel lateral fijo
-
-## 🎨 Personalización
-
-### Colores
-Los colores se pueden personalizar en `tailwind.config.js`:
-
+### Configuración de Mapbox
 ```javascript
-colors: {
-  primary: {
-    50: '#f0f9ff',
-    // ... más tonos
-    900: '#0c4a6e',
-  },
-}
+// En config/mapbox.js
+export const MAPBOX_CONFIG = {
+  token: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
+  style: 'mapbox://styles/mapbox/streets-v12',
+  center: [-82.3666, 23.1136], // La Habana
+  zoom: 13
+};
 ```
-
-### Iconos
-Los iconos SVG están en `components/atoms/CategoryIcon.tsx` y se pueden personalizar según las categorías.
 
 ## 🚀 Despliegue
 
 ### Vercel (Recomendado)
-```bash
-npm run build
-vercel --prod
-```
+1. Conecta tu repositorio a Vercel
+2. Configura las variables de entorno
+3. Despliega automáticamente
 
-### Netlify
-```bash
-npm run build
-# Subir la carpeta .next a Netlify
-```
+### Otros Proveedores
+- **Netlify**: Compatible con Next.js
+- **Railway**: Soporte completo
+- **Heroku**: Requiere configuración adicional
 
-## 📄 Scripts Disponibles
+## 🔮 Próximas Funcionalidades
 
-- `npm run dev`: Servidor de desarrollo
-- `npm run build`: Construir para producción
-- `npm run start`: Servidor de producción
-- `npm run lint`: Ejecutar ESLint
+### Integración con Firebase
+- [ ] Autenticación real con Firebase Auth
+- [ ] Base de datos Firestore para restaurantes
+- [ ] Storage para fotos
+- [ ] Funciones Cloud para lógica de negocio
 
-## 🔧 Solución de Problemas
+### Integración con n8n
+- [ ] Envío de reservas automático
+- [ ] Notificaciones de nuevas reseñas
+- [ ] Workflows personalizados
+- [ ] Integración con sistemas externos
 
-### Error: "Token de Mapbox no configurado"
-Si ves este error al calcular rutas:
-1. Verifica que tienes un archivo `.env.local` en la raíz del proyecto
-2. Asegúrate de que contiene: `NEXT_PUBLIC_MAPBOX_TOKEN=tu_token_real`
-3. Reinicia el servidor de desarrollo: `npm run dev`
-
-### Error: "Cannot read properties of undefined"
-Si ves este error al calcular rutas:
-1. Verifica que tu token de Mapbox es válido
-2. Asegúrate de que tienes permisos para usar la API de direcciones
-3. Verifica que las coordenadas son válidas
-
-### Ubicación no disponible
-Si el botón de ruta no aparece:
-1. Permite el acceso a la ubicación en tu navegador
-2. Verifica que tu dispositivo tiene GPS activado
-3. Intenta recargar la página
+### Funcionalidades Avanzadas
+- [ ] Sistema de reservas en tiempo real
+- [ ] Chat en vivo con restaurantes
+- [ ] Sistema de lealtad y puntos
+- [ ] Análisis avanzado de datos
 
 ## 🤝 Contribución
 
 1. Fork el proyecto
-2. Crear una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
 3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
 4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abrir un Pull Request
+5. Abre un Pull Request
 
-## 📝 Licencia
+## 📄 Licencia
 
 Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
 
-## 🆘 Soporte
+## 📞 Soporte
 
-Si tienes problemas o preguntas:
-1. Revisar la documentación
-2. Buscar en los issues existentes
-3. Crear un nuevo issue con detalles del problema
+- **Email**: soporte@restaurants.com
+- **Documentación**: [docs.restaurants.com](https://docs.restaurants.com)
+- **Issues**: [GitHub Issues](https://github.com/username/restaurants/issues)
 
-## 🔮 Roadmap
+---
 
-- [ ] Integración con Firebase
-- [ ] Sistema de autenticación
-- [ ] Filtros por categoría
-- [ ] Búsqueda de lugares
-- [ ] Favoritos del usuario
-- [ ] Notificaciones push
-- [ ] PWA (Progressive Web App)
-- [ ] Múltiples idiomas
+**Desarrollado con ❤️ para la comunidad gastronómica de La Habana**

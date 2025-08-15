@@ -28,6 +28,8 @@ const MapView: React.FC<MapViewProps> = ({
   routeData,
   isCalculatingRoute
 }) => {
+  console.log('🗺️ MapView renderizado con', places.length, 'lugares');
+
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<mapboxgl.Marker[]>([]);
@@ -35,6 +37,12 @@ const MapView: React.FC<MapViewProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>('all');
   const [filteredPlaces, setFilteredPlaces] = useState<Place[]>(places);
+  const [mapLoaded, setMapLoaded] = useState(false);
+
+  // Actualizar filteredPlaces cuando places cambie
+  useEffect(() => {
+    setFilteredPlaces(places);
+  }, [places]);
 
   // Coordenadas por defecto (La Habana)
   const defaultCenter: [number, number] = [-82.3594, 23.1136];
@@ -51,75 +59,83 @@ const MapView: React.FC<MapViewProps> = ({
   // Inicializar mapa
   useEffect(() => {
     console.log('🗺️ Inicializando mapa...');
-    console.log('🔑 Token disponible:', !!process.env.NEXT_PUBLIC_MAPBOX_TOKEN);
     
     if (!process.env.NEXT_PUBLIC_MAPBOX_TOKEN) {
       console.error('❌ Token de Mapbox no encontrado');
       return;
     }
 
+    if (!mapContainer.current) {
+      console.error('❌ Contenedor del mapa no encontrado');
+      return;
+    }
+
+    // Limpiar mapa existente de forma segura
     if (map.current) {
-      console.log('🗺️ Mapa ya existe, limpiando...');
       try {
-        map.current.remove();
+        // Verificar si el mapa aún existe y está en un estado válido
+        if (map.current.getContainer()) {
+          map.current.remove();
+        }
       } catch (error) {
         console.log('Error removing existing map:', error);
       }
+      map.current = null;
     }
 
-    console.log('🎨 Creando nuevo mapa...');
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current!,
-      style: 'mapbox://styles/mapbox/light-v11',
-      center: [-82.3594, 23.1136], // La Habana
-      zoom: 13,
-      accessToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN
-    });
+    // Crear nuevo mapa
+    try {
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/light-v11',
+        center: [-82.3594, 23.1136], // La Habana
+        zoom: 13,
+        accessToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN
+      });
+      
+      // Agregar controles de navegación en la izquierda
+      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      
+      // Agregar control de ubicación en la izquierda
+      map.current.addControl(
+        new mapboxgl.GeolocateControl({
+          positionOptions: {
+            enableHighAccuracy: true
+          },
+          trackUserLocation: true,
+          showUserHeading: true
+        }),
+        'top-right'
+      );
+      
+      // Evento cuando el mapa se carga
+      map.current.on('load', () => {
+        console.log('✅ Mapa cargado correctamente');
+        console.log('📍 Lugares disponibles al cargar:', places.length);
+        setMapLoaded(true);
+      });
 
-    console.log('🎨 Mapa creado, agregando controles...');
-    
-    // Agregar controles de navegación en la izquierda
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-    
-    // Agregar control de ubicación en la izquierda
-    map.current.addControl(
-      new mapboxgl.GeolocateControl({
-        positionOptions: {
-          enableHighAccuracy: true
-        },
-        trackUserLocation: true,
-        showUserHeading: true
-      }),
-      'top-right'
-    );
-    
-    // Evento cuando el mapa se carga
-    map.current.on('load', () => {
-      console.log('✅ Mapa cargado correctamente');
-      console.log('🎨 Estilo cargado:', map.current?.isStyleLoaded());
-    });
+      // Evento de error
+      map.current.on('error', (e) => {
+        console.error('❌ Error en el mapa:', e);
+      });
 
-    // Evento cuando el estilo se carga
-    map.current.on('styledata', () => {
-      console.log('🎨 Estilo del mapa cargado');
-      console.log('🎨 isStyleLoaded():', map.current?.isStyleLoaded());
-    });
+    } catch (error) {
+      console.error('❌ Error creando mapa:', error);
+    }
 
-    // Evento de error
-    map.current.on('error', (e) => {
-      console.error('❌ Error en el mapa:', e);
-    });
-
-    console.log('🎨 Mapa inicializado, esperando carga...');
-
+    // Función de limpieza
     return () => {
       if (map.current) {
-        console.log('🧹 Limpiando mapa...');
         try {
-          map.current.remove();
+          // Verificar si el mapa aún existe y está en un estado válido
+          if (map.current.getContainer()) {
+            map.current.remove();
+          }
         } catch (error) {
           console.log('Error removing map in cleanup:', error);
         }
+        map.current = null;
       }
     };
   }, []);
@@ -135,36 +151,57 @@ const MapView: React.FC<MapViewProps> = ({
           userLocationMarker.current.remove();
         }
       } catch (error) {
-        console.log('Error removing previous marker:', error);
+        console.log('Error removing previous user marker:', error);
       }
+      userLocationMarker.current = null;
     }
     
-    const userMarkerElement = document.createElement('div');
-    userMarkerElement.className = 'user-location-marker';
-    userMarkerElement.innerHTML = `
-      <div class="relative">
-        <div class="w-8 h-8 bg-blue-500 border-3 border-white rounded-full shadow-lg flex items-center justify-center">
-          <div class="w-3 h-3 bg-white rounded-full"></div>
+    try {
+      const userMarkerElement = document.createElement('div');
+      userMarkerElement.className = 'user-location-marker';
+      userMarkerElement.innerHTML = `
+        <div class="relative">
+          <div class="w-8 h-8 bg-blue-500 border-3 border-white rounded-full shadow-lg flex items-center justify-center">
+            <div class="w-3 h-3 bg-white rounded-full"></div>
+          </div>
+          <div class="absolute inset-0 rounded-full bg-blue-500 animate-ping opacity-75"></div>
         </div>
-        <div class="absolute inset-0 rounded-full bg-blue-500 animate-ping opacity-75"></div>
-      </div>
-    `;
-    
-    const userMarker = new mapboxgl.Marker(userMarkerElement)
-      .setLngLat(userLocation)
-      .addTo(map.current);
-    
-    userLocationMarker.current = userMarker;
+      `;
+      
+      const userMarker = new mapboxgl.Marker(userMarkerElement)
+        .setLngLat(userLocation)
+        .addTo(map.current);
+      
+      userLocationMarker.current = userMarker;
+    } catch (error) {
+      console.error('Error creating user location marker:', error);
+    }
   }, [userLocation]);
 
   // Renderizar marcadores cuando el mapa esté listo
   useEffect(() => {
-    if (!map.current || !map.current.isStyleLoaded()) return;
+    console.log('🎯 Renderizando marcadores...');
+    console.log('🗺️ Mapa existe:', !!map.current);
+    console.log('🗺️ Estilo cargado:', map.current?.isStyleLoaded());
+    console.log('📍 Lugares filtrados:', filteredPlaces.length);
+    console.log('📍 Lugares originales:', places.length);
+    
+    if (!map.current) {
+      console.log('❌ Mapa no existe aún');
+      return;
+    }
+    
+    if (!map.current.isStyleLoaded()) {
+      console.log('❌ Estilo del mapa no está cargado aún');
+      return;
+    }
 
-    // Limpiar marcadores existentes
+    console.log('✅ Mapa listo, limpiando marcadores anteriores...');
+
+    // Limpiar marcadores existentes de forma segura
     markers.current.forEach(marker => {
       try {
-        if (marker.getElement()) {
+        if (marker && marker.getElement()) {
           marker.remove();
         }
       } catch (error) {
@@ -173,48 +210,60 @@ const MapView: React.FC<MapViewProps> = ({
     });
     markers.current = [];
 
+    console.log('🎯 Agregando marcadores para', filteredPlaces.length, 'lugares...');
+
     // Agregar marcadores para lugares filtrados
-    filteredPlaces.forEach(place => {
-      const markerElement = document.createElement('div');
-      markerElement.className = 'cursor-pointer';
-      
-      const categoryColors = {
-        restaurant: 'bg-red-500',
-        concert: 'bg-purple-500',
-        bar: 'bg-blue-500',
-      };
-      
-      const isSelected = selectedPlace?.id === place.id;
-      const colorClass = categoryColors[place.category];
-      
-      markerElement.innerHTML = `
-        <div class="relative cursor-pointer transform transition-all duration-200 hover:scale-110 ${isSelected ? 'z-50' : ''}">
-          <div class="w-12 h-12 rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-all duration-200 ${colorClass} ${isSelected ? 'scale-125 shadow-xl' : ''}">
-            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-              ${place.category === 'restaurant' ? '<path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/>' : 
-                place.category === 'concert' ? '<path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>' :
-                '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>'}
-            </svg>
+    filteredPlaces.forEach((place, index) => {
+      try {
+        console.log(`🎯 Creando marcador ${index + 1}/${filteredPlaces.length}:`, place.name);
+        
+        const markerElement = document.createElement('div');
+        markerElement.className = 'cursor-pointer';
+        
+        const categoryColors = {
+          restaurant: 'bg-red-500',
+          concert: 'bg-purple-500',
+          bar: 'bg-blue-500',
+        };
+        
+        const isSelected = selectedPlace?.id === place.id;
+        const colorClass = categoryColors[place.category];
+        
+        markerElement.innerHTML = `
+          <div class="relative cursor-pointer transform transition-all duration-200 hover:scale-110 ${isSelected ? 'z-50' : ''}">
+            <div class="w-12 h-12 rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-all duration-200 ${colorClass} ${isSelected ? 'scale-125 shadow-xl' : ''}">
+              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                ${place.category === 'restaurant' ? '<path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/>' : 
+                  place.category === 'concert' ? '<path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>' :
+                  '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>'}
+              </svg>
+            </div>
+            ${isSelected ? '<div class="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-75"></div>' : ''}
+            <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-sm rounded-lg whitespace-nowrap opacity-0 transition-opacity duration-200 pointer-events-none ${isSelected ? 'opacity-100' : ''}">
+              ${place.name}
+              <div class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+            </div>
           </div>
-          ${isSelected ? '<div class="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-75"></div>' : ''}
-          <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-sm rounded-lg whitespace-nowrap opacity-0 transition-opacity duration-200 pointer-events-none ${isSelected ? 'opacity-100' : ''}">
-            ${place.name}
-            <div class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-          </div>
-        </div>
-      `;
+        `;
 
-      const marker = new mapboxgl.Marker(markerElement)
-        .setLngLat([place.coordinates.lng, place.coordinates.lat])
-        .addTo(map.current!);
+        const marker = new mapboxgl.Marker(markerElement)
+          .setLngLat([place.coordinates.lng, place.coordinates.lat])
+          .addTo(map.current!);
 
-      markerElement.addEventListener('click', () => {
-        onPlaceSelect(place);
-      });
+        markerElement.addEventListener('click', () => {
+          console.log('🎯 Marcador clickeado:', place.name);
+          onPlaceSelect(place);
+        });
 
-      markers.current.push(marker);
+        markers.current.push(marker);
+        console.log(`✅ Marcador creado para ${place.name} en [${place.coordinates.lng}, ${place.coordinates.lat}]`);
+      } catch (error) {
+        console.error('Error creating marker for', place.name, ':', error);
+      }
     });
-  }, [filteredPlaces, onPlaceSelect]);
+
+    console.log('✅ Total de marcadores agregados:', markers.current.length);
+  }, [filteredPlaces, onPlaceSelect, selectedPlace, mapLoaded]);
 
   // Filtrar lugares basado en búsqueda y categoría
   useEffect(() => {

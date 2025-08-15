@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Mapa de La Habana - Restaurantes, Conciertos y Bares',
-  description: 'Descubre los mejores restaurantes, conciertos y bares de La Habana, Cuba con nuestro mapa interactivo.',
-  keywords: 'mapa, la habana, cuba, restaurantes, conciertos, bares, lugares, geolocalización',
+  title: 'Mapa de Lugares - Descubre La Habana',
+  description: 'Explora los mejores restaurantes, bares y eventos de La Habana',
 };
 
 export default function RootLayout({
@@ -18,7 +18,9 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={inter.className}>
-        {children}
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

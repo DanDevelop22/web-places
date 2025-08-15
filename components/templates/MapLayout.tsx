@@ -6,9 +6,12 @@ import MapView from '@/components/organisms/MapView';
 import SidePanel from '@/components/organisms/SidePanel';
 import Button from '@/components/atoms/Button';
 import LanguageSelector from '@/components/atoms/LanguageSelector';
-import { Moon, Sun, Menu, X } from 'lucide-react';
+import ContactModal from '@/components/molecules/ContactModal';
+import FloatingContactButton from '@/components/atoms/FloatingContactButton';
+import { Moon, Sun, Menu, X, Settings, MessageCircle, Info } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cleanUrlParams } from '@/utils/urlHelpers';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface MapLayoutProps {
   places: Place[];
@@ -16,14 +19,21 @@ interface MapLayoutProps {
 }
 
 const MapLayout: React.FC<MapLayoutProps> = ({ places, initialPlace }) => {
+  const { isDarkMode, toggleDarkMode } = useTheme();
+  
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [showRoute, setShowRoute] = useState(false);
   const [routeData, setRouteData] = useState<any>(null);
   const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const router = useRouter();
+
+  // Log cuando se renderiza el MapLayout
+  useEffect(() => {
+    console.log('🎯 MapLayout renderizado con', places.length, 'lugares');
+  }, [places]);
 
   // Abrir automáticamente el lugar inicial si se especifica y limpiar URL
   useEffect(() => {
@@ -67,29 +77,6 @@ const MapLayout: React.FC<MapLayoutProps> = ({ places, initialPlace }) => {
       );
     }
   }, []);
-
-  // Manejar modo oscuro
-  useEffect(() => {
-    const isDark = localStorage.getItem('darkMode') === 'true';
-    setIsDarkMode(isDark);
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, []);
-
-  const toggleDarkMode = () => {
-    const newDarkMode = !isDarkMode;
-    setIsDarkMode(newDarkMode);
-    localStorage.setItem('darkMode', newDarkMode.toString());
-    
-    if (newDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
 
   const handlePlaceSelect = (place: Place) => {
     setSelectedPlace(place);
@@ -191,6 +178,31 @@ const MapLayout: React.FC<MapLayoutProps> = ({ places, initialPlace }) => {
                 <Moon className="w-5 h-5 text-gray-600" />
               )}
             </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsContactModalOpen(true)}
+              className="p-2"
+            >
+              <MessageCircle className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              Únete Ahora
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push('/es/landing')}
+              className="p-2"
+            >
+              <Info className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push('/es/login')}
+              className="p-2"
+            >
+              <Settings className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </Button>
           </div>
         </div>
       </div>
@@ -199,32 +211,34 @@ const MapLayout: React.FC<MapLayoutProps> = ({ places, initialPlace }) => {
       <div className="pt-16 h-full">
         <MapView
           places={places}
-          onPlaceSelect={handlePlaceSelect}
           selectedPlace={selectedPlace}
+          onPlaceSelect={handlePlaceSelect}
           userLocation={userLocation}
           showRoute={showRoute}
           routeData={routeData}
           isCalculatingRoute={isCalculatingRoute}
         />
+        
+        <SidePanel
+          place={selectedPlace}
+          isOpen={isPanelOpen}
+          onClose={handleClosePanel}
+          onCalculateRoute={handleCalculateRoute}
+          userLocation={userLocation}
+          onAddReview={handleAddReview}
+        />
       </div>
 
-      {/* Side Panel */}
-      <SidePanel
-        place={selectedPlace}
-        isOpen={isPanelOpen}
-        onClose={handleClosePanel}
-        onAddReview={handleAddReview}
-        onCalculateRoute={handleCalculateRoute}
-        userLocation={userLocation}
+      {/* Contact Modal */}
+      <ContactModal
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
       />
 
-      {/* Overlay para móviles */}
-      {isPanelOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          onClick={handleClosePanel}
-        />
-      )}
+      {/* Floating Contact Button */}
+      <FloatingContactButton
+        onContactClick={() => setIsContactModalOpen(true)}
+      />
     </div>
   );
 };
