@@ -1,0 +1,35 @@
+{
+  "map": {
+    "title": "Places Map",
+    "myLocation": "My Location",
+    "places": "Places",
+    "restaurants": "Restaurants",
+    "concerts": "Concerts",
+    "bars": "Bars"
+  },
+  "restaurant": {
+    "menu": "Digital Menu",
+    "reserveTable": "Reserve Table"
+  },
+  "concert": {
+    "eventInfo": "Event Information",
+    "buyTickets": "Buy Tickets"
+  },
+  "bar": {
+    "drinksMenu": "Drinks Menu"
+  },
+  "reviews": {
+    "title": "Reviews",
+    "addReview": "Add Review",
+    "rating": "Rating",
+    "comment": "Comment",
+    "submit": "Submit",
+    "noReviews": "No reviews yet"
+  },
+  "common": {
+    "close": "Close",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  }
+}

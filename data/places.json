@@ -1,0 +1,281 @@
+{
+  "places": [
+    {
+      "id": "1",
+      "name": "La Bodeguita del Medio",
+      "category": "restaurant",
+      "address": "Empedrado 207, La Habana Vieja, La Habana",
+      "coordinates": {
+        "lng": -82.3594,
+        "lat": 23.1136
+      },
+      "description": "Restaurante histórico famoso por sus mojitos y la cocina criolla cubana. Visitado por Ernest Hemingway y otros personajes célebres.",
+      "photos": [
+        "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800",
+        "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800",
+        "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800"
+      ],
+      "rating": 4.7,
+      "reviews": [
+        {
+          "id": "1",
+          "author": "Carlos Rodríguez",
+          "rating": 5,
+          "comment": "Los mejores mojitos de La Habana. Ambiente histórico increíble.",
+          "date": "2024-01-15"
+        },
+        {
+          "id": "2",
+          "author": "María González",
+          "rating": 4,
+          "comment": "Comida criolla auténtica y música en vivo. Muy recomendado.",
+          "date": "2024-01-10"
+        }
+      ],
+      "menu": [
+        {
+          "name": "Ropa Vieja",
+          "description": "Carne desmenuzada con arroz y frijoles negros",
+          "price": 15.00
+        },
+        {
+          "name": "Mojito Tradicional",
+          "description": "Ron, menta, limón, azúcar y soda",
+          "price": 8.00
+        },
+        {
+          "name": "Arroz con Pollo",
+          "description": "Pollo con arroz amarillo y vegetales",
+          "price": 12.00
+        }
+      ],
+      "hours": {
+        "monday": "12:00-23:00",
+        "tuesday": "12:00-23:00",
+        "wednesday": "12:00-23:00",
+        "thursday": "12:00-23:00",
+        "friday": "12:00-00:00",
+        "saturday": "12:00-00:00",
+        "sunday": "13:00-22:00"
+      },
+      "socialMedia": {
+        "facebook": "https://facebook.com/labodeguitadelmedio",
+        "instagram": "https://instagram.com/labodeguitadelmedio",
+        "website": "https://labodeguitadelmedio.com",
+        "phone": "+53 7 8671374",
+        "email": "info@labodeguitadelmedio.com"
+      }
+    },
+    {
+      "id": "2",
+      "name": "Casa de la Música",
+      "category": "concert",
+      "address": "Calle 20 #3308, Miramar, La Habana",
+      "coordinates": {
+        "lng": -82.4456,
+        "lat": 23.1139
+      },
+      "description": "El templo de la música cubana. Presenta los mejores artistas de salsa, timba y música tradicional cubana.",
+      "photos": [
+        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800",
+        "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800",
+        "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800"
+      ],
+      "rating": 4.9,
+      "reviews": [
+        {
+          "id": "3",
+          "author": "Ana Martínez",
+          "rating": 5,
+          "comment": "La mejor experiencia musical de Cuba. Bailé toda la noche.",
+          "date": "2024-01-20"
+        }
+      ],
+      "event": {
+        "title": "Noche de Salsa con Los Van Van",
+        "date": "2024-02-15",
+        "time": "22:00",
+        "description": "La orquesta más famosa de Cuba en una noche inolvidable de salsa y timba.",
+        "ticketPrice": 30.00,
+        "availableTickets": 200
+      },
+      "socialMedia": {
+        "facebook": "https://facebook.com/casadelamusicahabana",
+        "instagram": "https://instagram.com/casadelamusicahabana",
+        "youtube": "https://youtube.com/casadelamusicahabana",
+        "tiktok": "https://tiktok.com/@casadelamusicahabana",
+        "website": "https://casadelamusicahabana.com",
+        "phone": "+53 7 2040447",
+        "email": "info@casadelamusicahabana.com"
+      }
+    },
+    {
+      "id": "3",
+      "name": "El Floridita",
+      "category": "bar",
+      "address": "Obispo 557, La Habana Vieja, La Habana",
+      "coordinates": {
+        "lng": -82.3598,
+        "lat": 23.1135
+      },
+      "description": "Bar histórico donde Hemingway disfrutaba sus daiquiris. Ambiente elegante y cócteles de clase mundial.",
+      "photos": [
+        "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800",
+        "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800"
+      ],
+      "rating": 4.6,
+      "reviews": [
+        {
+          "id": "4",
+          "author": "Luis Pérez",
+          "rating": 5,
+          "comment": "Los daiquiris más famosos del mundo. Historia en cada sorbo.",
+          "date": "2024-01-18"
+        },
+        {
+          "id": "5",
+          "author": "Carmen Silva",
+          "rating": 4,
+          "comment": "Ambiente histórico increíble. Los cócteles son obras de arte.",
+          "date": "2024-01-12"
+        }
+      ],
+      "menu": [
+        {
+          "name": "Daiquiri Hemingway",
+          "description": "Ron blanco, jugo de limón, marrasquino y azúcar",
+          "price": 12.00
+        },
+        {
+          "name": "Mojito Especial",
+          "description": "Ron añejo, menta fresca, limón y soda",
+          "price": 10.00
+        },
+        {
+          "name": "Cuba Libre Premium",
+          "description": "Ron añejo con Coca-Cola y limón",
+          "price": 9.00
+        }
+      ],
+      "hours": {
+        "monday": "11:00-02:00",
+        "tuesday": "11:00-02:00",
+        "wednesday": "11:00-02:00",
+        "thursday": "11:00-02:00",
+        "friday": "11:00-03:00",
+        "saturday": "11:00-03:00",
+        "sunday": "12:00-01:00"
+      },
+      "socialMedia": {
+        "facebook": "https://facebook.com/elfloriditahabana",
+        "instagram": "https://instagram.com/elfloriditahabana",
+        "twitter": "https://twitter.com/elfloridita",
+        "website": "https://elfloriditahabana.com",
+        "phone": "+53 7 8671300",
+        "email": "reservas@elfloriditahabana.com"
+      }
+    },
+    {
+      "id": "4",
+      "name": "Restaurante 1830",
+      "category": "restaurant",
+      "address": "Malecón 1252, Vedado, La Habana",
+      "coordinates": {
+        "lng": -82.3890,
+        "lat": 23.1384
+      },
+      "description": "Restaurante elegante con vista al mar. Especializado en mariscos y cocina internacional con toque cubano.",
+      "photos": [
+        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800",
+        "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800",
+        "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800"
+      ],
+      "rating": 4.8,
+      "reviews": [
+        {
+          "id": "6",
+          "author": "Roberto Díaz",
+          "rating": 5,
+          "comment": "La mejor vista de La Habana. Comida excepcional y servicio impecable.",
+          "date": "2024-01-25"
+        }
+      ],
+      "menu": [
+        {
+          "name": "Langosta a la Plancha",
+          "description": "Langosta fresca con mantequilla de hierbas",
+          "price": 35.00
+        },
+        {
+          "name": "Filete de Pescado",
+          "description": "Pescado del día con vegetales frescos",
+          "price": 25.00
+        },
+        {
+          "name": "Arroz con Mariscos",
+          "description": "Arroz con camarones, calamares y pescado",
+          "price": 20.00
+        }
+      ],
+      "hours": {
+        "monday": "12:00-23:00",
+        "tuesday": "12:00-23:00",
+        "wednesday": "12:00-23:00",
+        "thursday": "12:00-23:00",
+        "friday": "12:00-00:00",
+        "saturday": "12:00-00:00",
+        "sunday": "13:00-22:00"
+      },
+      "socialMedia": {
+        "facebook": "https://facebook.com/restaurante1830",
+        "instagram": "https://instagram.com/restaurante1830",
+        "website": "https://restaurante1830.com",
+        "phone": "+53 7 8369646",
+        "email": "reservas@restaurante1830.com"
+      }
+    },
+    {
+      "id": "5",
+      "name": "Teatro Nacional",
+      "category": "concert",
+      "address": "Paseo y 39, Vedado, La Habana",
+      "coordinates": {
+        "lng": -82.3956,
+        "lat": 23.1422
+      },
+      "description": "Teatro histórico que presenta ballet, ópera y conciertos sinfónicos. Arquitectura impresionante y acústica perfecta.",
+      "photos": [
+        "https://images.unsplash.com/photo-1503095396549-807759245b35?w=800",
+        "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800",
+        "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800"
+      ],
+      "rating": 4.9,
+      "reviews": [
+        {
+          "id": "7",
+          "author": "Isabel Morales",
+          "rating": 5,
+          "comment": "Espectacular presentación de ballet. El teatro es una joya arquitectónica.",
+          "date": "2024-01-30"
+        }
+      ],
+      "event": {
+        "title": "Ballet Nacional de Cuba - Giselle",
+        "date": "2024-03-10",
+        "time": "20:00",
+        "description": "Presentación de la obra maestra del ballet romántico con la compañía más prestigiosa de Cuba.",
+        "ticketPrice": 45.00,
+        "availableTickets": 150
+      },
+      "socialMedia": {
+        "facebook": "https://facebook.com/teatronacionalcuba",
+        "instagram": "https://instagram.com/teatronacionalcuba",
+        "youtube": "https://youtube.com/teatronacionalcuba",
+        "website": "https://teatronacionalcuba.com",
+        "phone": "+53 7 8796010",
+        "email": "info@teatronacionalcuba.com"
+      }
+    }
+  ]
+}

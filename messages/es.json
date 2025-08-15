@@ -1,0 +1,35 @@
+{
+  "map": {
+    "title": "Mapa de Lugares",
+    "myLocation": "Mi Ubicación",
+    "places": "Lugares",
+    "restaurants": "Restaurantes",
+    "concerts": "Conciertos",
+    "bars": "Bares"
+  },
+  "restaurant": {
+    "menu": "Menú Digital",
+    "reserveTable": "Reservar Mesa"
+  },
+  "concert": {
+    "eventInfo": "Información del Evento",
+    "buyTickets": "Comprar Entradas"
+  },
+  "bar": {
+    "drinksMenu": "Carta de Bebidas"
+  },
+  "reviews": {
+    "title": "Reseñas",
+    "addReview": "Añadir Reseña",
+    "rating": "Calificación",
+    "comment": "Comentario",
+    "submit": "Enviar",
+    "noReviews": "No hay reseñas aún"
+  },
+  "common": {
+    "close": "Cerrar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito"
+  }
+}
