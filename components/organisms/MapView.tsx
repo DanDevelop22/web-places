@@ -19,10 +19,10 @@ interface MapViewProps {
   isCalculatingRoute?: boolean;
 }
 
-const MapView: React.FC<MapViewProps> = ({ 
-  places, 
-  onPlaceSelect, 
-  selectedPlace, 
+const MapView: React.FC<MapViewProps> = ({
+  places,
+  onPlaceSelect,
+  selectedPlace,
   userLocation,
   showRoute,
   routeData,
@@ -59,7 +59,7 @@ const MapView: React.FC<MapViewProps> = ({
   // Inicializar mapa
   useEffect(() => {
     console.log('🗺️ Inicializando mapa...');
-    
+
     if (!process.env.NEXT_PUBLIC_MAPBOX_TOKEN) {
       console.error('❌ Token de Mapbox no encontrado');
       return;
@@ -92,10 +92,10 @@ const MapView: React.FC<MapViewProps> = ({
         zoom: 13,
         accessToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN
       });
-      
+
       // Agregar controles de navegación en la izquierda
       map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-      
+
       // Agregar control de ubicación en la izquierda
       map.current.addControl(
         new mapboxgl.GeolocateControl({
@@ -107,7 +107,7 @@ const MapView: React.FC<MapViewProps> = ({
         }),
         'top-right'
       );
-      
+
       // Evento cuando el mapa se carga
       map.current.on('load', () => {
         console.log('✅ Mapa cargado correctamente');
@@ -155,7 +155,7 @@ const MapView: React.FC<MapViewProps> = ({
       }
       userLocationMarker.current = null;
     }
-    
+
     try {
       const userMarkerElement = document.createElement('div');
       userMarkerElement.className = 'user-location-marker';
@@ -167,11 +167,11 @@ const MapView: React.FC<MapViewProps> = ({
           <div class="absolute inset-0 rounded-full bg-blue-500 animate-ping opacity-75"></div>
         </div>
       `;
-      
+
       const userMarker = new mapboxgl.Marker(userMarkerElement)
         .setLngLat(userLocation)
         .addTo(map.current);
-      
+
       userLocationMarker.current = userMarker;
     } catch (error) {
       console.error('Error creating user location marker:', error);
@@ -185,12 +185,12 @@ const MapView: React.FC<MapViewProps> = ({
     console.log('🗺️ Estilo cargado:', map.current?.isStyleLoaded());
     console.log('📍 Lugares filtrados:', filteredPlaces.length);
     console.log('📍 Lugares originales:', places.length);
-    
+
     if (!map.current) {
       console.log('❌ Mapa no existe aún');
       return;
     }
-    
+
     if (!map.current.isStyleLoaded()) {
       console.log('❌ Estilo del mapa no está cargado aún');
       return;
@@ -216,26 +216,28 @@ const MapView: React.FC<MapViewProps> = ({
     filteredPlaces.forEach((place, index) => {
       try {
         console.log(`🎯 Creando marcador ${index + 1}/${filteredPlaces.length}:`, place.name);
-        
+
         const markerElement = document.createElement('div');
         markerElement.className = 'cursor-pointer';
-        
+
         const categoryColors = {
           restaurant: 'bg-red-500',
           concert: 'bg-purple-500',
           bar: 'bg-blue-500',
         };
-        
+
         const isSelected = selectedPlace?.id === place.id;
         const colorClass = categoryColors[place.category];
-        
+
         markerElement.innerHTML = `
           <div class="relative cursor-pointer transform transition-all duration-200 hover:scale-110 ${isSelected ? 'z-50' : ''}">
             <div class="w-12 h-12 rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-all duration-200 ${colorClass} ${isSelected ? 'scale-125 shadow-xl' : ''}">
               <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                ${place.category === 'restaurant' ? '<path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/>' : 
-                  place.category === 'concert' ? '<path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>' :
-                  '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>'}
+                ${place.category === 'restaurant' ? '<path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/>' :
+            place.category === 'concert' ? '<path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>' : place.category === 'bar'
+  ? '<path d="M8 22h8"/><path d="M7 10h10"/><path d="M12 15v7"/><path d="M18 4H6v6a6 6 0 1 0 12 0V4Z"/>'
+              : '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>'
+          }
               </svg>
             </div>
             ${isSelected ? '<div class="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-75"></div>' : ''}
@@ -247,7 +249,7 @@ const MapView: React.FC<MapViewProps> = ({
         `;
 
         const marker = new mapboxgl.Marker(markerElement)
-          .setLngLat([place.coordinates.lng, place.coordinates.lat])
+          .setLngLat([parseFloat(place.locationLng), parseFloat(place.locationLat)])
           .addTo(map.current!);
 
         markerElement.addEventListener('click', () => {
@@ -256,7 +258,7 @@ const MapView: React.FC<MapViewProps> = ({
         });
 
         markers.current.push(marker);
-        console.log(`✅ Marcador creado para ${place.name} en [${place.coordinates.lng}, ${place.coordinates.lat}]`);
+        console.log(`✅ Marcador creado para ${place.name} en [${place.locationLng}, ${place.locationLat}]`);
       } catch (error) {
         console.error('Error creating marker for', place.name, ':', error);
       }
@@ -277,7 +279,7 @@ const MapView: React.FC<MapViewProps> = ({
     // Filtrar por búsqueda
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(place => 
+      filtered = filtered.filter(place =>
         place.name.toLowerCase().includes(query) ||
         place.description.toLowerCase().includes(query) ||
         place.address.toLowerCase().includes(query)
@@ -291,7 +293,7 @@ const MapView: React.FC<MapViewProps> = ({
   useEffect(() => {
     if (selectedPlace && map.current) {
       map.current.flyTo({
-        center: [selectedPlace.coordinates.lng, selectedPlace.coordinates.lat],
+        center: [parseFloat(selectedPlace.locationLng), parseFloat(selectedPlace.locationLat)],
         zoom: 16,
         duration: 2000
       });
@@ -368,7 +370,7 @@ const MapView: React.FC<MapViewProps> = ({
         (position) => {
           const { longitude, latitude } = position.coords;
           const location: [number, number] = [longitude, latitude];
-          
+
           // Crear o actualizar marcador de ubicación del usuario
           if (map.current) {
             // Remover marcador anterior si existe de forma segura
@@ -381,7 +383,7 @@ const MapView: React.FC<MapViewProps> = ({
                 console.log('Error removing previous marker:', error);
               }
             }
-            
+
             const userMarkerElement = document.createElement('div');
             userMarkerElement.className = 'user-location-marker';
             userMarkerElement.innerHTML = `
@@ -392,14 +394,14 @@ const MapView: React.FC<MapViewProps> = ({
                 <div class="absolute inset-0 rounded-full bg-blue-500 animate-ping opacity-75"></div>
               </div>
             `;
-            
+
             const userMarker = new mapboxgl.Marker(userMarkerElement)
               .setLngLat([longitude, latitude])
               .addTo(map.current);
-            
+
             userLocationMarker.current = userMarker;
           }
-          
+
           map.current?.flyTo({
             center: [longitude, latitude],
             zoom: 14,

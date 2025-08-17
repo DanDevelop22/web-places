@@ -1,0 +1,171 @@
+{
+  "places": [
+    {
+      "name": "La Bodeguita del Medio",
+      "description": "Restaurante histórico famoso por sus mojitos y la cocina criolla cubana. Visitado por Ernest Hemingway y otros personajes célebres.",
+      "category": "restaurant",
+      "address": "Empedrado 207, La Habana Vieja, La Habana",
+      "locationLat": "23.1136",
+      "locationLng": "-82.3594",
+      "photos": [
+        "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800",
+        "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800",
+        "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800"
+      ],
+      "rating": 4.7,
+      "reviews": "/reviews/bodeguita-reviews",
+      "menus": ["/menu/bodeguita-menu"],
+      "socialNetworks": ["/socialNetworks/bodeguita-facebook", "/socialNetworks/bodeguita-instagram", "/socialNetworks/bodeguita-website"],
+      "schedule": "12:00-23:00",
+      "type": "restaurant",
+      "uid": "bodeguita-uid",
+      "userId": "5H95owFqi7xkqOfI8LJI",
+      "createdAt": "2024-01-15T10:00:00.000Z"
+    },
+    {
+      "name": "Casa de la Música",
+      "description": "El templo de la música cubana. Presenta los mejores artistas de salsa, timba y música tradicional cubana.",
+      "category": "concert",
+      "address": "Calle 20 #3308, Miramar, La Habana",
+      "locationLat": "23.1139",
+      "locationLng": "-82.4456",
+      "photos": [
+        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800",
+        "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800",
+        "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800"
+      ],
+      "rating": 4.9,
+      "reviews": "/reviews/casa-musica-reviews",
+      "menus": ["/menu/casa-musica-events"],
+      "socialNetworks": ["/socialNetworks/casa-musica-facebook", "/socialNetworks/casa-musica-instagram", "/socialNetworks/casa-musica-youtube", "/socialNetworks/casa-musica-tiktok"],
+      "schedule": "22:00-04:00",
+      "type": "concert",
+      "uid": "casa-musica-uid",
+      "userId": "5H95owFqi7xkqOfI8LJI",
+      "createdAt": "2024-01-20T15:30:00.000Z"
+    },
+    {
+      "name": "El Floridita",
+      "description": "Bar histórico donde Hemingway disfrutaba sus daiquiris. Ambiente elegante y cócteles de clase mundial.",
+      "category": "bar",
+      "address": "Obispo 557, La Habana Vieja, La Habana",
+      "locationLat": "23.1135",
+      "locationLng": "-82.3598",
+      "photos": [
+        "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800",
+        "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800"
+      ],
+      "rating": 4.6,
+      "reviews": "/reviews/floridita-reviews",
+      "menus": ["/menu/floridita-drinks"],
+      "schedule": "11:00-02:00",
+      "type": "bar",
+      "uid": "floridita-uid",
+      "userId": "5H95owFqi7xkqOfI8LJI",
+      "createdAt": "2024-01-18T12:15:00.000Z"
+    },
+    {
+      "name": "Restaurante 1830",
+      "description": "Restaurante elegante con vista al mar. Especializado en mariscos y cocina internacional con toque cubano.",
+      "category": "restaurant",
+      "address": "Malecón 1252, Vedado, La Habana",
+      "locationLat": "23.1384",
+      "locationLng": "-82.3890",
+      "photos": [
+        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800",
+        "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800",
+        "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800"
+      ],
+      "rating": 4.8,
+      "reviews": "/reviews/1830-reviews",
+      "menus": ["/menu/1830-seafood"],
+      "schedule": "12:00-23:00",
+      "type": "restaurant",
+      "uid": "1830-uid",
+      "userId": "5H95owFqi7xkqOfI8LJI",
+      "createdAt": "2024-01-25T18:45:00.000Z"
+    },
+    {
+      "name": "Teatro Nacional",
+      "description": "Teatro histórico que presenta ballet, ópera y conciertos sinfónicos. Arquitectura impresionante y acústica perfecta.",
+      "category": "concert",
+      "address": "Paseo y 39, Vedado, La Habana",
+      "locationLat": "23.1422",
+      "locationLng": "-82.3956",
+      "photos": [
+        "https://images.unsplash.com/photo-1503095396549-807759245b35?w=800",
+        "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800",
+        "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800"
+      ],
+      "rating": 4.9,
+      "reviews": "/reviews/teatro-nacional-reviews",
+      "menus": ["/menu/teatro-nacional-events"],
+      "schedule": "20:00-23:00",
+      "type": "concert",
+      "uid": "teatro-nacional-uid",
+      "userId": "5H95owFqi7xkqOfI8LJI",
+      "createdAt": "2024-01-30T20:00:00.000Z"
+    },
+    {
+      "name": "Café Habana",
+      "description": "Café moderno con el mejor café cubano y pastelería tradicional. Ambiente acogedor para trabajar o socializar.",
+      "category": "restaurant",
+      "address": "Calle 23 #456, Vedado, La Habana",
+      "locationLat": "23.1400",
+      "locationLng": "-82.3900",
+      "photos": [
+        "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800",
+        "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800"
+      ],
+      "rating": 4.5,
+      "reviews": "/reviews/cafe-habana-reviews",
+      "menus": ["/menu/cafe-habana-menu"],
+      "schedule": "07:00-22:00",
+      "type": "restaurant",
+      "uid": "cafe-habana-uid",
+      "userId": "5H95owFqi7xkqOfI8LJI",
+      "createdAt": "2024-02-01T08:30:00.000Z"
+    },
+    {
+      "name": "Bar Dos Hermanos",
+      "description": "Bar tradicional cubano con música en vivo y ambiente auténtico. Los mejores cócteles de la ciudad.",
+      "category": "bar",
+      "address": "San Pedro 304, La Habana Vieja, La Habana",
+      "locationLat": "23.1140",
+      "locationLng": "-82.3580",
+      "photos": [
+        "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800",
+        "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800"
+      ],
+      "rating": 4.4,
+      "reviews": "/reviews/dos-hermanos-reviews",
+      "menus": ["/menu/dos-hermanos-drinks"],
+      "schedule": "16:00-01:00",
+      "type": "bar",
+      "uid": "dos-hermanos-uid",
+      "userId": "5H95owFqi7xkqOfI8LJI",
+      "createdAt": "2024-02-05T16:00:00.000Z"
+    },
+    {
+      "name": "Jazz Café",
+      "description": "Club de jazz íntimo con música en vivo todas las noches. Los mejores músicos de jazz de Cuba.",
+      "category": "concert",
+      "address": "Calle 1 #104, Miramar, La Habana",
+      "locationLat": "23.1150",
+      "locationLng": "-82.4400",
+      "photos": [
+        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800",
+        "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800"
+      ],
+      "rating": 4.7,
+      "reviews": "/reviews/jazz-cafe-reviews",
+      "menus": ["/menu/jazz-cafe-events"],
+      "schedule": "21:00-02:00",
+      "type": "concert",
+      "uid": "jazz-cafe-uid",
+      "userId": "5H95owFqi7xkqOfI8LJI",
+      "createdAt": "2024-02-10T21:00:00.000Z"
+    }
+  ]
+}

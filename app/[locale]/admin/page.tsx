@@ -11,7 +11,8 @@ import {
   Calendar,
   Plus,
   Edit,
-  Eye
+  Eye,
+  Wine
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -88,7 +89,7 @@ export default function AdminDashboard() {
       case 'restaurant':
         return <Utensils className="w-4 h-4" />;
       case 'bar':
-        return <Utensils className="w-4 h-4" />;
+        return <Wine   className="w-4 h-4" />;
       case 'concert':
         return <Calendar className="w-4 h-4" />;
       default:

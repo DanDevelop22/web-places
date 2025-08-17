@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Place } from '@/types';
+import React, { useState, useEffect } from 'react';
+import { Place, SocialNetwork } from '@/types';
 import { X, MapPin, Utensils, Calendar, Clock, Navigation, Share2, Copy, ExternalLink } from 'lucide-react';
 import { clsx } from 'clsx';
 import CategoryIcon from '@/components/atoms/CategoryIcon';
@@ -13,6 +13,7 @@ import Button from '@/components/atoms/Button';
 import Modal from '@/components/atoms/Modal';
 import { generateShareUrl } from '@/utils/urlHelpers';
 import { useRouter } from 'next/navigation';
+import { loadSocialNetworksByIds, getSocialNetworkIcon, getSocialNetworkLabel } from '@/services/socialNetworks';
 
 interface SidePanelProps {
   place: Place | null;
@@ -31,11 +32,37 @@ const SidePanel: React.FC<SidePanelProps> = ({
   onCalculateRoute, 
   userLocation 
 }) => {
+
   const [isAddingReview, setIsAddingReview] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareModalMessage, setShareModalMessage] = useState('');
   const [shareModalType, setShareModalType] = useState<'success' | 'error'>('success');
+  const [socialNetworks, setSocialNetworks] = useState<SocialNetwork[]>([]);
+  const [loadingSocialNetworks, setLoadingSocialNetworks] = useState(false);
   const router = useRouter();
+
+  // Cargar redes sociales cuando cambie el lugar
+  useEffect(() => {
+    const loadSocialNetworks = async () => {
+      if (!place?.socialNetworks || place.socialNetworks.length === 0) {
+        setSocialNetworks([]);
+        return;
+      }
+
+      try {
+        setLoadingSocialNetworks(true);
+        const networks = await loadSocialNetworksByIds(place.socialNetworks);
+        setSocialNetworks(networks);
+      } catch (error) {
+        console.error('❌ Error cargando redes sociales:', error);
+        setSocialNetworks([]);
+      } finally {
+        setLoadingSocialNetworks(false);
+      }
+    };
+
+    loadSocialNetworks();
+  }, [place?.socialNetworks]);
 
   if (!place) return null;
 
@@ -58,7 +85,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
   const handleReserveTable = async () => {
     try {
       // Aquí se integraría con n8n
-      console.log('Reserving table for:', place.name);
+     
       alert('Reserva enviada (simulación)');
     } catch (error) {
       console.error('Error reserving table:', error);
@@ -68,7 +95,6 @@ const SidePanel: React.FC<SidePanelProps> = ({
   const handleBuyTickets = async () => {
     try {
       // Aquí se integraría con n8n
-      console.log('Buying tickets for:', place.name);
       alert('Compra de entradas enviada (simulación)');
     } catch (error) {
       console.error('Error buying tickets:', error);
@@ -81,7 +107,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
       return;
     }
     
-    const destination: [number, number] = [place.coordinates.lng, place.coordinates.lat];
+          const destination: [number, number] = [parseFloat(place.locationLng), parseFloat(place.locationLat)];
     onCalculateRoute?.(destination);
   };
 
@@ -253,7 +279,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
               <div className="flex items-center gap-2">
                 <Rating rating={place.rating} showValue />
                 <span className="text-sm text-gray-500 dark:text-gray-400">
-                  ({place.reviews.length} reseñas)
+                  ({place.reviews?.length || 0} reseñas)
                 </span>
               </div>
             </div>
@@ -267,6 +293,46 @@ const SidePanel: React.FC<SidePanelProps> = ({
                 {place.description}
               </p>
             </div>
+
+            {/* Redes Sociales desde Firestore */}
+            {socialNetworks.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                  Redes Sociales
+                </h3>
+                <div className="space-y-2">
+                  {socialNetworks.map((network) => (
+                    <a
+                      key={network.id}
+                      href={network.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <span className="text-xl">{getSocialNetworkIcon(network.type)}</span>
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {getSocialNetworkLabel(network.type)}
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                          {network.url}
+                        </p>
+                      </div>
+                      <ExternalLink className="w-4 h-4 text-gray-400" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {loadingSocialNetworks && (
+              <div className="text-center py-4">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600 mx-auto"></div>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                  Cargando redes sociales...
+                </p>
+              </div>
+            )}
 
             {/* Sección de acciones */}
             <div className="mt-6 space-y-3">
@@ -317,7 +383,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
 
             {/* Reviews */}
             <ReviewSection
-              reviews={place.reviews}
+              reviews={place.reviews || []}
               placeId={place.id}
               onAddReview={handleAddReview}
             />

@@ -1,68 +1,92 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  Edit, 
-  Trash2, 
-  Eye, 
+import {
+  Plus,
+  Search,
+  Filter,
+  Edit,
+  Trash2,
+  Eye,
   MoreVertical,
   Utensils,
   Calendar,
   Star,
-  MapPin
+  MapPin,
+  Loader2,
+  Wine
 } from 'lucide-react';
 import { clsx } from 'clsx';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { loadPlacesByUser, deletePlace } from '@/services/places';
+import { Place } from '@/types';
+import { loadSocialNetworksByIds, getSocialNetworkIcon, getSocialNetworkLabel } from '@/services/socialNetworks';
 
 export default function RestaurantsPage() {
   const router = useRouter();
+  const { user } = useAuthContext();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
+  const [restaurants, setRestaurants] = useState<Place[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [restaurantSocialNetworks, setRestaurantSocialNetworks] = useState<{ [key: string]: any[] }>({});
 
-  // Datos de ejemplo - en el futuro vendrán de Firebase
-  const restaurants = [
-    {
-      id: 1,
-      name: 'La Bodeguita del Medio',
-      category: 'restaurant',
-      address: 'Calle Empedrado 207, La Habana',
-      rating: 4.5,
-      reviews: 12,
-      status: 'active',
-      lastUpdated: '2024-01-15'
-    },
-    {
-      id: 2,
-      name: 'El Floridita',
-      category: 'bar',
-      address: 'Obispo 557, La Habana',
-      rating: 4.3,
-      reviews: 8,
-      status: 'active',
-      lastUpdated: '2024-01-14'
-    },
-    {
-      id: 3,
-      name: 'Tropicana Club',
-      category: 'concert',
-      address: 'Calle 72, Marianao',
-      rating: 4.7,
-      reviews: 4,
-      status: 'active',
-      lastUpdated: '2024-01-13'
+  // Función para cargar restaurantes
+  const loadUserRestaurants = async () => {
+    if (!user?.uid) {
+      setLoading(false);
+      return;
     }
-  ];
+
+    try {
+      setLoading(true);
+      setError(null);
+      console.log('🔥 Cargando restaurantes del usuario:', user.uid);
+
+      const userPlaces = await loadPlacesByUser(user.uid);
+      setRestaurants(userPlaces);
+
+      // Cargar redes sociales para cada restaurante
+      const socialNetworksData: { [key: string]: any[] } = {};
+      for (const place of userPlaces) {
+        if (place.socialNetworks && place.socialNetworks.length > 0) {
+          try {
+            const networks = await loadSocialNetworksByIds(place.socialNetworks);
+            socialNetworksData[place.id] = networks;
+          } catch (error) {
+            console.error(`❌ Error cargando redes sociales para ${place.name}:`, error);
+            socialNetworksData[place.id] = [];
+          }
+        } else {
+          socialNetworksData[place.id] = [];
+        }
+      }
+      setRestaurantSocialNetworks(socialNetworksData);
+
+      console.log('✅ Restaurantes cargados:', userPlaces.length);
+    } catch (err) {
+      console.error('❌ Error cargando restaurantes:', err);
+      setError('Error al cargar los restaurantes desde Firestore');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Cargar restaurantes del usuario desde Firestore
+  useEffect(() => {
+    loadUserRestaurants();
+  }, [user?.uid]);
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'restaurant':
         return <Utensils className="w-4 h-4" />;
       case 'bar':
-        return <Utensils className="w-4 h-4" />;
+        return <Wine className="w-4 h-4" />;
       case 'concert':
         return <Calendar className="w-4 h-4" />;
       default:
@@ -107,27 +131,98 @@ export default function RestaurantsPage() {
 
   const filteredRestaurants = restaurants.filter(restaurant => {
     const matchesSearch = restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         restaurant.address.toLowerCase().includes(searchQuery.toLowerCase());
+      restaurant.address.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || restaurant.category === selectedCategory;
-    const matchesStatus = selectedStatus === 'all' || restaurant.status === selectedStatus;
-    
+    // Por ahora todos los lugares se consideran activos
+    const matchesStatus = selectedStatus === 'all' || selectedStatus === 'active';
+
     return matchesSearch && matchesCategory && matchesStatus;
   });
 
-  const handleEdit = (id: number) => {
+  const handleEdit = (id: string) => {
     router.push(`/es/admin/restaurants/${id}/edit`);
   };
 
-  const handleView = (id: number) => {
+  const handleView = (id: string) => {
     router.push(`/es/menu/${id}`);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: string) => {
     if (confirm('¿Estás seguro de que quieres eliminar este restaurante?')) {
-      // Aquí se implementará la lógica de eliminación con Firebase
-      console.log('Eliminando restaurante:', id);
+      try {
+        setDeletingId(id);
+        await deletePlace(id);
+
+        // Actualizar la lista local
+        setRestaurants(prev => prev.filter(restaurant => restaurant.id !== id));
+
+        console.log('✅ Restaurante eliminado:', id);
+      } catch (err) {
+        console.error('❌ Error eliminando restaurante:', err);
+        alert('Error al eliminar el restaurante. Inténtalo de nuevo.');
+      } finally {
+        setDeletingId(null);
+      }
     }
   };
+
+  // Mostrar estado de carga
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Mis Restaurantes
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Gestiona todos tus establecimientos
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 text-primary-600 animate-spin mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-400">
+              Cargando restaurantes desde Firestore...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Mostrar estado de error
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Mis Restaurantes
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Gestiona todos tus establecimientos
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="text-red-500 text-xl mb-4">⚠️</div>
+            <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
+            <button
+              onClick={loadUserRestaurants}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+            >
+              Reintentar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -138,16 +233,31 @@ export default function RestaurantsPage() {
             Mis Restaurantes
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Gestiona todos tus establecimientos
+            Gestiona todos tus establecimientos ({restaurants.length} total)
           </p>
         </div>
-        <button
-          onClick={() => router.push('/es/admin/restaurants/create')}
-          className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Crear Restaurante
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={loadUserRestaurants}
+            disabled={loading}
+            className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 border border-gray-300 dark:border-gray-600 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Recargar datos"
+          >
+            {loading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <div className="w-4 h-4">🔄</div>
+            )}
+            Recargar
+          </button>
+          <button
+            onClick={() => router.push('/es/admin/restaurants/create')}
+            className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Crear Restaurante
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -252,7 +362,7 @@ export default function RestaurantsPage() {
                     </span>
                   </div>
                   <span className="text-sm text-gray-500 dark:text-gray-400">
-                    ({restaurant.reviews} reseñas)
+                    ({restaurant.reviews?.length || 0} reseñas)
                   </span>
                 </div>
 
@@ -260,14 +370,33 @@ export default function RestaurantsPage() {
                 <div className="flex items-center justify-between">
                   <span className={clsx(
                     'px-2 py-1 text-xs font-medium rounded-full',
-                    getStatusColor(restaurant.status)
+                    getStatusColor('active')
                   )}>
-                    {getStatusLabel(restaurant.status)}
+                    Activo
                   </span>
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    Actualizado: {new Date(restaurant.lastUpdated).toLocaleDateString('es-ES')}
+                    ID: {restaurant.id}
                   </span>
                 </div>
+
+                {/* Redes Sociales */}
+                {restaurantSocialNetworks[restaurant.id] && restaurantSocialNetworks[restaurant.id].length > 0 && (
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Redes:</span>
+                    <div className="flex gap-1">
+                      {restaurantSocialNetworks[restaurant.id].slice(0, 3).map((network, index) => (
+                        <span key={index} className="text-xs" title={getSocialNetworkLabel(network.type)}>
+                          {getSocialNetworkIcon(network.type)}
+                        </span>
+                      ))}
+                      {restaurantSocialNetworks[restaurant.id].length > 3 && (
+                        <span className="text-xs text-gray-400">
+                          +{restaurantSocialNetworks[restaurant.id].length - 3}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -292,10 +421,20 @@ export default function RestaurantsPage() {
                 </div>
                 <button
                   onClick={() => handleDelete(restaurant.id)}
-                  className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                  disabled={deletingId === restaurant.id}
+                  className={clsx(
+                    "p-2 rounded-lg transition-colors",
+                    deletingId === restaurant.id
+                      ? "text-gray-400 cursor-not-allowed"
+                      : "text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                  )}
                   title="Eliminar"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  {deletingId === restaurant.id ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </div>
@@ -308,15 +447,20 @@ export default function RestaurantsPage() {
         <div className="text-center py-12">
           <Utensils className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            No se encontraron restaurantes
+            {restaurants.length === 0
+              ? 'No tienes restaurantes registrados'
+              : 'No se encontraron restaurantes'
+            }
           </h3>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            {searchQuery || selectedCategory !== 'all' || selectedStatus !== 'all'
-              ? 'Intenta ajustar los filtros de búsqueda'
-              : 'Comienza creando tu primer restaurante'
+            {restaurants.length === 0
+              ? 'Comienza creando tu primer restaurante en Firestore'
+              : searchQuery || selectedCategory !== 'all' || selectedStatus !== 'all'
+                ? 'Intenta ajustar los filtros de búsqueda'
+                : 'No hay restaurantes que coincidan con los criterios'
             }
           </p>
-          {!searchQuery && selectedCategory === 'all' && selectedStatus === 'all' && (
+          {restaurants.length === 0 && (
             <button
               onClick={() => router.push('/es/admin/restaurants/create')}
               className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 mx-auto transition-colors"

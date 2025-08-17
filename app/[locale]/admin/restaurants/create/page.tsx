@@ -8,6 +8,9 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { isMapboxTokenValid } from '@/config/mapbox';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { createRestaurantInFirestore, validateRestaurantData, formatRestaurantData } from '@/services/restaurantCreation';
 
 // Configuración de Mapbox
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
@@ -70,9 +73,11 @@ const MenuItemSchema = Yup.object().shape({
 
 export default function CreateRestaurantPage() {
   const router = useRouter();
+  const { user } = useAuthContext();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const marker = useRef<mapboxgl.Marker | null>(null);
+  const setFieldValueRef = useRef<((field: string, value: any) => void) | null>(null);
 
   const [menuItems, setMenuItems] = useState<Array<{
     name: string;
@@ -82,6 +87,8 @@ export default function CreateRestaurantPage() {
 
   const [photos, setPhotos] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [addressLoading, setAddressLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Valores iniciales del formulario
   const initialValues = {
@@ -114,51 +121,181 @@ export default function CreateRestaurantPage() {
     }
   };
 
-  // Inicializar mapa
-  useEffect(() => {
-    if (!mapContainer.current || map.current) return;
+  // Estado para las coordenadas actuales
+  const [coordinates, setCoordinates] = useState(initialValues.coordinates);
 
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: [initialValues.coordinates.lng, initialValues.coordinates.lat],
-      zoom: 13
-    });
-
-    // Agregar controles
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-    map.current.addControl(new mapboxgl.GeolocateControl({
-      positionOptions: {
-        enableHighAccuracy: true
-      },
-      trackUserLocation: true,
-      showUserHeading: true
-    }), 'top-right');
-
-    // Crear marcador
-    marker.current = new mapboxgl.Marker({ draggable: true })
-      .setLngLat([initialValues.coordinates.lng, initialValues.coordinates.lat])
-      .addTo(map.current);
-
-    // Evento de arrastrar marcador
-    marker.current.on('dragend', () => {
-      const lngLat = marker.current?.getLngLat();
-      if (lngLat) {
-        // Actualizar coordenadas en el formulario
-        console.log('Nuevas coordenadas:', { lat: lngLat.lat, lng: lngLat.lng });
+  // Función para obtener dirección a partir de coordenadas
+  const getAddressFromCoordinates = async (lat: number, lng: number) => {
+    try {
+      setAddressLoading(true);
+      console.log('🔍 Buscando dirección para:', { lat, lng });
+      
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}&language=es&types=address`
+      );
+      
+      if (!response.ok) {
+        throw new Error('Error en la respuesta de geocodificación');
       }
-    });
+      
+      const data = await response.json();
+      
+      if (data.features && data.features.length > 0) {
+        const address = data.features[0].place_name;
+        console.log('📍 Dirección encontrada:', address);
+        return address;
+      } else {
+        console.log('⚠️ No se encontró dirección para las coordenadas');
+        return null;
+      }
+    } catch (error) {
+      console.error('❌ Error obteniendo dirección:', error);
+      return null;
+    } finally {
+      setAddressLoading(false);
+    }
+  };
 
-    // Evento de clic en el mapa
-    map.current.on('click', (e) => {
-      const { lng, lat } = e.lngLat;
-      marker.current?.setLngLat([lng, lat]);
-      console.log('Nuevas coordenadas:', { lat, lng });
-    });
+  // Verificar configuración de Mapbox al cargar
+  useEffect(() => {
+    if (!isMapboxTokenValid()) {
+      console.error('❌ Token de Mapbox no configurado. Por favor, configura NEXT_PUBLIC_MAPBOX_TOKEN en tu archivo .env.local');
+    } else {
+      console.log('✅ Token de Mapbox configurado correctamente');
+    }
+  }, []);
 
+  // Inicializar mapa usando la misma configuración que MapView
+  useEffect(() => {
+    console.log('🗺️ Inicializando mapa en formulario...');
+    
+    if (!process.env.NEXT_PUBLIC_MAPBOX_TOKEN) {
+      console.error('❌ Token de Mapbox no encontrado');
+      return;
+    }
+
+    if (!mapContainer.current) {
+      console.error('❌ Contenedor del mapa no encontrado');
+      return;
+    }
+
+    // Limpiar mapa existente de forma segura
+    if (map.current) {
+      try {
+        if (map.current.getContainer()) {
+          map.current.remove();
+        }
+      } catch (error) {
+        console.log('Error removing existing map:', error);
+      }
+      map.current = null;
+    }
+
+    // Crear nuevo mapa
+    try {
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/light-v11',
+        center: [initialValues.coordinates.lng, initialValues.coordinates.lat],
+        zoom: 13,
+        accessToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN
+      });
+      
+      // Agregar controles de navegación
+      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      
+      // Agregar control de ubicación
+      map.current.addControl(
+        new mapboxgl.GeolocateControl({
+          positionOptions: {
+            enableHighAccuracy: true
+          },
+          trackUserLocation: true,
+          showUserHeading: true
+        }),
+        'top-right'
+      );
+
+      // Crear marcador
+      marker.current = new mapboxgl.Marker({ draggable: true })
+        .setLngLat([initialValues.coordinates.lng, initialValues.coordinates.lat])
+        .addTo(map.current);
+
+      // Evento de arrastrar marcador
+      marker.current.on('dragend', () => {
+        const lngLat = marker.current?.getLngLat();
+        if (lngLat) {
+          const newCoordinates = { lat: lngLat.lat, lng: lngLat.lng };
+          console.log('📍 Marcador movido a:', newCoordinates);
+          
+          // Actualizar coordenadas inmediatamente
+          setCoordinates(newCoordinates);
+          
+          // Buscar dirección después de 3 segundos
+          setTimeout(async () => {
+            const address = await getAddressFromCoordinates(newCoordinates.lat, newCoordinates.lng);
+            if (address) {
+              console.log('📍 Actualizando campo de dirección con:', address);
+              // Usar setFieldValue de Formik para actualizar el campo
+              if (setFieldValueRef.current) {
+                setFieldValueRef.current('address', address);
+              }
+            }
+          }, 3000);
+        }
+      });
+
+      // Evento de clic en el mapa
+      map.current.on('click', (e) => {
+        const { lng, lat } = e.lngLat;
+        marker.current?.setLngLat([lng, lat]);
+        
+        const newCoordinates = { lat, lng };
+        console.log('📍 Clic en mapa:', newCoordinates);
+        
+        // Actualizar coordenadas inmediatamente
+        setCoordinates(newCoordinates);
+        
+        // Buscar dirección después de 3 segundos
+        setTimeout(async () => {
+          const address = await getAddressFromCoordinates(newCoordinates.lat, newCoordinates.lng);
+          if (address) {
+            console.log('📍 Actualizando campo de dirección con:', address);
+            // Usar setFieldValue de Formik para actualizar el campo
+            if (setFieldValueRef.current) {
+              setFieldValueRef.current('address', address);
+            }
+          }
+        }, 3000);
+      });
+
+      // Evento cuando el mapa se carga
+      map.current.on('load', () => {
+        console.log('✅ Mapa cargado correctamente en formulario');
+      });
+
+      // Evento de error
+      map.current.on('error', (e) => {
+        console.error('❌ Error en el mapa:', e);
+      });
+
+      console.log('✅ Mapa inicializado correctamente en formulario');
+
+    } catch (error) {
+      console.error('❌ Error creando mapa:', error);
+    }
+
+    // Función de limpieza
     return () => {
       if (map.current) {
-        map.current.remove();
+        try {
+          if (map.current.getContainer()) {
+            map.current.remove();
+          }
+        } catch (error) {
+          console.log('Error removing map in cleanup:', error);
+        }
+        map.current = null;
       }
     };
   }, []);
@@ -187,7 +324,13 @@ export default function CreateRestaurantPage() {
   };
 
   const handleSubmit = async (values: any, { setSubmitting, setFieldError }: any) => {
+    if (!user?.uid) {
+      setError('Debes estar autenticado para crear un restaurante');
+      return;
+    }
+
     setIsLoading(true);
+    setError(null);
 
     try {
       // Validar elementos del menú
@@ -202,19 +345,36 @@ export default function CreateRestaurantPage() {
         }
       }
 
-      // Aquí se implementará la lógica para guardar en Firebase
-      console.log('Datos del restaurante:', {
+      // Formatear datos del formulario
+      const restaurantData = formatRestaurantData({
         ...values,
+        coordinates: coordinates, // Usar las coordenadas actuales del estado
         menu: menuItems,
-        photos: photos.map(f => f.name)
+        photos: photos
       });
 
-      // Simular guardado
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Validar datos
+      const validationErrors = validateRestaurantData(restaurantData);
+      if (validationErrors.length > 0) {
+        setError(validationErrors.join(', '));
+        setSubmitting(false);
+        setIsLoading(false);
+        return;
+      }
+
+      console.log('🔥 Creando restaurante con datos:', restaurantData);
+
+      // Crear restaurante en Firestore
+      const placeId = await createRestaurantInFirestore(restaurantData, user.uid);
       
+      console.log('✅ Restaurante creado exitosamente con ID:', placeId);
+      
+      // Redirigir al panel de administración
       router.push('/es/admin/restaurants');
-    } catch (error) {
-      console.error('Error al crear restaurante:', error);
+      
+    } catch (error: any) {
+      console.error('❌ Error al crear restaurante:', error);
+      setError(error.message || 'Error al crear el restaurante. Inténtalo de nuevo.');
     } finally {
       setSubmitting(false);
       setIsLoading(false);
@@ -248,8 +408,27 @@ export default function CreateRestaurantPage() {
         validationSchema={RestaurantSchema}
         onSubmit={handleSubmit}
       >
-        {({ values, errors, touched, isSubmitting, setFieldValue }) => (
+        {({ values, errors, touched, isSubmitting, setFieldValue }) => {
+          // Guardar la función setFieldValue en la referencia para que el mapa pueda usarla
+          setFieldValueRef.current = setFieldValue;
+          
+          return (
           <Form className="space-y-8">
+            {/* Mostrar errores generales */}
+            {error && (
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <div className="text-red-400">⚠️</div>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-red-800 dark:text-red-200">
+                      {error}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
             {/* Información Básica */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
@@ -337,10 +516,18 @@ export default function CreateRestaurantPage() {
                   <ErrorMessage name="address" component="p" className="text-red-600 dark:text-red-400 text-sm mt-1" />
                   
                   <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <p className="text-sm text-blue-700 dark:text-blue-300">
-                      <MapPin className="w-4 h-4 inline mr-1" />
-                      Coordenadas: {values.coordinates.lat.toFixed(6)}, {values.coordinates.lng.toFixed(6)}
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-blue-700 dark:text-blue-300">
+                        <MapPin className="w-4 h-4 inline mr-1" />
+                        Coordenadas: {coordinates.lat.toFixed(6)}, {coordinates.lng.toFixed(6)}
+                      </p>
+                      {addressLoading && (
+                        <div className="flex items-center gap-1">
+                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
+                          <span className="text-xs text-blue-600">Buscando dirección...</span>
+                        </div>
+                      )}
+                    </div>
                     <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
                       Haz clic en el mapa o arrastra el marcador para seleccionar la ubicación exacta
                     </p>
@@ -636,7 +823,8 @@ export default function CreateRestaurantPage() {
               </button>
             </div>
           </Form>
-        )}
+        );
+        }}
       </Formik>
     </div>
   );

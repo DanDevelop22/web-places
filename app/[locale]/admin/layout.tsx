@@ -4,6 +4,7 @@ import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { LogOut, Settings, Users, MapPin, Utensils, BarChart3, Calendar } from 'lucide-react';
 import { clsx } from 'clsx';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -12,12 +13,9 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const { user, logout } = useAuthContext();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
-  const [currentUser, setCurrentUser] = React.useState({
-    name: 'Admin User',
-    email: 'admin@example.com',
-    avatar: 'https://via.placeholder.com/40'
-  });
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
   const menuItems = [
     {
@@ -52,9 +50,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     }
   ];
 
-  const handleLogout = () => {
-    // Aquí se implementará la lógica de logout con Firebase
-    router.push('/es/login');
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      await logout();
+      router.push('/es/login');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+      // Aún redirigir al login en caso de error
+      router.push('/es/login');
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   return (
@@ -89,16 +96,16 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-3">
               <img
-                src={currentUser.avatar}
-                alt={currentUser.name}
+                src={user?.photoURL || 'https://via.placeholder.com/40'}
+                alt={user?.displayName || 'Usuario'}
                 className="w-10 h-10 rounded-full"
               />
               <div>
                 <p className="font-medium text-gray-900 dark:text-white">
-                  {currentUser.name}
+                  {user?.displayName || 'Usuario'}
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {currentUser.email}
+                  {user?.email || 'usuario@example.com'}
                 </p>
               </div>
             </div>
@@ -133,10 +140,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div className="p-6 border-t border-gray-200 dark:border-gray-700">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 w-full px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium transition-colors"
+              disabled={isLoggingOut}
+              className="flex items-center gap-3 w-full px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <LogOut className="w-5 h-5" />
-              Cerrar Sesión
+              {isLoggingOut ? 'Cerrando sesión...' : 'Cerrar Sesión'}
             </button>
           </div>
         </div>

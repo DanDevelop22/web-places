@@ -36,6 +36,13 @@ export interface Hours {
   sunday: string;
 }
 
+export interface SocialNetwork {
+  id?: string;
+  type: string; // facebook, instagram, twitter, youtube, tiktok, website, phone, email, etc.
+  uid: string;
+  url: string;
+}
+
 export interface SocialMedia {
   facebook?: string;
   instagram?: string;
@@ -52,7 +59,8 @@ export interface Place {
   name: string;
   category: 'restaurant' | 'concert' | 'bar';
   address: string;
-  coordinates: Coordinates;
+  locationLat: string;
+  locationLng: string;
   description: string;
   photos: string[];
   rating: number;
@@ -61,6 +69,15 @@ export interface Place {
   event?: Event;
   hours?: Hours;
   socialMedia?: SocialMedia;
+  socialNetworks?: any[]; // Referencias a documentos de socialNetworks (pueden ser strings o objetos)
+  phone?: string;
+  email?: string;
+  website?: string;
+  type?: string;
+  uid?: string;
+  userId?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface PlacesData {
