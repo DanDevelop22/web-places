@@ -8,10 +8,11 @@ import {
   Star, 
   TrendingUp, 
   MapPin, 
-  Calendar,
+  Music,
   Plus,
   Edit,
-  Eye
+  Eye,
+  Wine
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -75,11 +76,11 @@ export default function AdminDashboard() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+        return 'bg-brand-success/10 dark:bg-brand-success/20 text-brand-success border border-brand-success/20';
       case 'inactive':
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+        return 'bg-brand-dark-100 dark:bg-brand-dark-700 text-brand-dark-600 dark:text-brand-dark-300 border border-brand-dark-200 dark:border-brand-dark-600';
       default:
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+        return 'bg-brand-warning/10 dark:bg-brand-warning/20 text-brand-warning border border-brand-warning/20';
     }
   };
 
@@ -88,9 +89,9 @@ export default function AdminDashboard() {
       case 'restaurant':
         return <Utensils className="w-4 h-4" />;
       case 'bar':
-        return <Utensils className="w-4 h-4" />;
+        return <Wine className="w-4 h-4" />;
       case 'concert':
-        return <Calendar className="w-4 h-4" />;
+        return <Music className="w-4 h-4" />;
       default:
         return <MapPin className="w-4 h-4" />;
     }
@@ -101,16 +102,16 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-bold text-brand-dark-900 dark:text-brand-dark-100">
             Dashboard
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Bienvenido al panel de administración
+          <p className="text-brand-dark-600 dark:text-brand-dark-400 mt-1">
+            Bienvenido al panel de administración de DóndeTú
           </p>
         </div>
         <button 
           onClick={() => router.push('/es/admin/restaurants/create')}
-          className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          className="btn-brand flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           Crear Restaurante
@@ -119,66 +120,66 @@ export default function AdminDashboard() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="card-brand p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <p className="text-sm font-medium text-brand-dark-600 dark:text-brand-dark-400">
                 Total Restaurantes
               </p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white">
+              <p className="text-3xl font-bold text-brand-dark-900 dark:text-brand-dark-100">
                 {stats.totalRestaurants}
               </p>
             </div>
-            <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center">
-              <Utensils className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+            <div className="w-12 h-12 bg-brand-primary/10 dark:bg-brand-primary/20 rounded-brand flex items-center justify-center">
+              <Utensils className="w-6 h-6 text-brand-primary" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="card-brand p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <p className="text-sm font-medium text-brand-dark-600 dark:text-brand-dark-400">
                 Total Reseñas
               </p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white">
+              <p className="text-3xl font-bold text-brand-dark-900 dark:text-brand-dark-100">
                 {stats.totalReviews}
               </p>
             </div>
-            <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-              <Users className="w-6 h-6 text-green-600 dark:text-green-400" />
+            <div className="w-12 h-12 bg-brand-success/10 dark:bg-brand-success/20 rounded-brand flex items-center justify-center">
+              <Users className="w-6 h-6 text-brand-success" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="card-brand p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <p className="text-sm font-medium text-brand-dark-600 dark:text-brand-dark-400">
                 Rating Promedio
               </p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white">
+              <p className="text-3xl font-bold text-brand-dark-900 dark:text-brand-dark-100">
                 {stats.averageRating}
               </p>
             </div>
-            <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center">
-              <Star className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
+            <div className="w-12 h-12 bg-brand-warning/10 dark:bg-brand-warning/20 rounded-brand flex items-center justify-center">
+              <Star className="w-6 h-6 text-brand-warning" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="card-brand p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <p className="text-sm font-medium text-brand-dark-600 dark:text-brand-dark-400">
                 Visitas Mensuales
               </p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white">
+              <p className="text-3xl font-bold text-brand-dark-900 dark:text-brand-dark-100">
                 {stats.monthlyVisits.toLocaleString()}
               </p>
             </div>
-            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <div className="w-12 h-12 bg-brand-info/10 dark:bg-brand-info/20 rounded-brand flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-brand-info" />
             </div>
           </div>
         </div>
@@ -187,15 +188,15 @@ export default function AdminDashboard() {
       {/* Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Restaurants */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="card-brand">
+          <div className="p-6 border-b border-brand-dark-200 dark:border-brand-dark-700">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-lg font-semibold text-brand-dark-900 dark:text-brand-dark-100">
                 Restaurantes Recientes
               </h2>
               <button 
                 onClick={() => router.push('/es/admin/restaurants')}
-                className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+                className="text-brand-primary hover:text-brand-primary-dark dark:text-brand-primary-light text-sm font-medium transition-colors"
               >
                 Ver todos
               </button>
@@ -204,23 +205,23 @@ export default function AdminDashboard() {
           <div className="p-6">
             <div className="space-y-4">
               {recentRestaurants.map((restaurant) => (
-                <div key={restaurant.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div key={restaurant.id} className="flex items-center justify-between p-4 bg-brand-dark-50 dark:bg-brand-dark-800 rounded-brand">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center">
+                    <div className="w-10 h-10 bg-brand-primary/10 dark:bg-brand-primary/20 rounded-brand flex items-center justify-center">
                       {getCategoryIcon(restaurant.category)}
                     </div>
                     <div>
-                      <h3 className="font-medium text-gray-900 dark:text-white">
+                      <h3 className="font-medium text-brand-dark-900 dark:text-brand-dark-100">
                         {restaurant.name}
                       </h3>
                       <div className="flex items-center gap-2 mt-1">
                         <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                          <Star className="w-4 h-4 text-brand-warning fill-current" />
+                          <span className="text-sm text-brand-dark-600 dark:text-brand-dark-400">
                             {restaurant.rating}
                           </span>
                         </div>
-                        <span className="text-sm text-gray-500 dark:text-gray-500">
+                        <span className="text-sm text-brand-dark-500 dark:text-brand-dark-500">
                           ({restaurant.reviews} reseñas)
                         </span>
                       </div>
@@ -234,11 +235,11 @@ export default function AdminDashboard() {
                       {restaurant.status === 'active' ? 'Activo' : 'Inactivo'}
                     </span>
                     <div className="flex items-center gap-1">
-                      <button className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded">
-                        <Eye className="w-4 h-4 text-gray-500" />
+                      <button className="p-1 hover:bg-brand-dark-100 dark:hover:bg-brand-dark-700 rounded-brand transition-colors">
+                        <Eye className="w-4 h-4 text-brand-dark-500 dark:text-brand-dark-400" />
                       </button>
-                      <button className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded">
-                        <Edit className="w-4 h-4 text-gray-500" />
+                      <button className="p-1 hover:bg-brand-dark-100 dark:hover:bg-brand-dark-700 rounded-brand transition-colors">
+                        <Edit className="w-4 h-4 text-brand-dark-500 dark:text-brand-dark-400" />
                       </button>
                     </div>
                   </div>
@@ -249,15 +250,15 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent Reviews */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="card-brand">
+          <div className="p-6 border-b border-brand-dark-200 dark:border-brand-dark-700">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-lg font-semibold text-brand-dark-900 dark:text-brand-dark-100">
                 Reseñas Recientes
               </h2>
               <button 
                 onClick={() => router.push('/es/admin/reviews')}
-                className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+                className="text-brand-primary hover:text-brand-primary-dark dark:text-brand-primary-light text-sm font-medium transition-colors"
               >
                 Ver todas
               </button>
@@ -266,11 +267,11 @@ export default function AdminDashboard() {
           <div className="p-6">
             <div className="space-y-4">
               {recentReviews.map((review) => (
-                <div key={review.id} className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div key={review.id} className="p-4 bg-brand-dark-50 dark:bg-brand-dark-800 rounded-brand">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <h3 className="font-medium text-gray-900 dark:text-white">
+                        <h3 className="font-medium text-brand-dark-900 dark:text-brand-dark-100">
                           {review.restaurant}
                         </h3>
                         <div className="flex items-center gap-1">
@@ -280,17 +281,17 @@ export default function AdminDashboard() {
                               className={clsx(
                                 'w-4 h-4',
                                 i < review.rating
-                                  ? 'text-yellow-500 fill-current'
-                                  : 'text-gray-300 dark:text-gray-600'
+                                  ? 'text-brand-warning fill-current'
+                                  : 'text-brand-dark-300 dark:text-brand-dark-600'
                               )}
                             />
                           ))}
                         </div>
                       </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      <p className="text-sm text-brand-dark-600 dark:text-brand-dark-400 mb-2">
                         &quot;{review.comment}&quot;
                       </p>
-                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-500">
+                      <div className="flex items-center gap-2 text-xs text-brand-dark-500 dark:text-brand-dark-500">
                         <span>Por {review.author}</span>
                         <span>•</span>
                         <span>{new Date(review.date).toLocaleDateString('es-ES')}</span>
@@ -305,21 +306,21 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      <div className="card-brand p-6">
+        <h2 className="text-lg font-semibold text-brand-dark-900 dark:text-brand-dark-100 mb-4">
           Acciones Rápidas
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button 
             onClick={() => router.push('/es/admin/restaurants/create')}
-            className="flex items-center gap-3 p-4 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
+            className="flex items-center gap-3 p-4 bg-brand-primary/5 dark:bg-brand-primary/10 border border-brand-primary/20 dark:border-brand-primary/30 rounded-brand hover:bg-brand-primary/10 dark:hover:bg-brand-primary/20 transition-all duration-200"
           >
-            <Plus className="w-5 h-5 text-primary-600" />
+            <Plus className="w-5 h-5 text-brand-primary" />
             <div className="text-left">
-              <p className="font-medium text-primary-900 dark:text-primary-100">
+              <p className="font-medium text-brand-primary dark:text-brand-primary-light">
                 Crear Restaurante
               </p>
-              <p className="text-sm text-primary-700 dark:text-primary-300">
+              <p className="text-sm text-brand-primary/70 dark:text-brand-primary/80">
                 Añadir nuevo establecimiento
               </p>
             </div>
@@ -327,14 +328,14 @@ export default function AdminDashboard() {
           
           <button 
             onClick={() => router.push('/es/admin/restaurants')}
-            className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
+            className="flex items-center gap-3 p-4 bg-brand-success/5 dark:bg-brand-success/10 border border-brand-success/20 dark:border-brand-success/30 rounded-brand hover:bg-brand-success/10 dark:hover:bg-brand-success/20 transition-all duration-200"
           >
-            <Edit className="w-5 h-5 text-green-600" />
+            <Edit className="w-5 h-5 text-brand-success" />
             <div className="text-left">
-              <p className="font-medium text-green-900 dark:text-green-100">
+              <p className="font-medium text-brand-success dark:text-brand-success">
                 Editar Menús
               </p>
-              <p className="text-sm text-green-700 dark:text-green-300">
+              <p className="text-sm text-brand-success/70 dark:text-brand-success/80">
                 Actualizar cartas y platos
               </p>
             </div>
@@ -342,14 +343,14 @@ export default function AdminDashboard() {
           
           <button 
             onClick={() => router.push('/es/admin/reviews')}
-            className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+            className="flex items-center gap-3 p-4 bg-brand-info/5 dark:bg-brand-info/10 border border-brand-info/20 dark:border-brand-info/30 rounded-brand hover:bg-brand-info/10 dark:hover:bg-brand-info/20 transition-all duration-200"
           >
-            <Users className="w-5 h-5 text-blue-600" />
+            <Users className="w-5 h-5 text-brand-info" />
             <div className="text-left">
-              <p className="font-medium text-blue-900 dark:text-blue-100">
+              <p className="font-medium text-brand-info dark:text-brand-info">
                 Gestionar Reseñas
               </p>
-              <p className="text-sm text-blue-700 dark:text-blue-300">
+              <p className="text-sm text-brand-info/70 dark:text-brand-info/80">
                 Ver y responder comentarios
               </p>
             </div>

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { MessageCircle, X, Mail, Phone } from 'lucide-react';
 import { clsx } from 'clsx';
+import LogoIcon from './LogoIcon';
 
 interface FloatingContactButtonProps {
   onContactClick: () => void;
@@ -16,13 +17,13 @@ export default function FloatingContactButton({ onContactClick }: FloatingContac
       icon: Mail,
       label: 'Email',
       action: () => window.open('mailto:contacto@mapadelugares.com', '_blank'),
-      color: 'bg-blue-500 hover:bg-blue-600'
+      color: 'bg-brand-info hover:bg-brand-info/80'
     },
     {
       icon: Phone,
       label: 'Llamar',
       action: () => window.open('tel:+5371234567', '_blank'),
-      color: 'bg-green-500 hover:bg-green-600'
+      color: 'bg-brand-success hover:bg-brand-success/80'
     }
   ];
 
@@ -37,7 +38,7 @@ export default function FloatingContactButton({ onContactClick }: FloatingContac
               <div
                 key={index}
                 className={clsx(
-                  'flex items-center gap-3 p-3 rounded-full text-white shadow-lg transition-all duration-300 transform hover:scale-105',
+                  'flex items-center gap-3 p-3 rounded-full text-white shadow-brand-lg transition-all duration-300 transform hover:scale-105',
                   option.color
                 )}
                 style={{
@@ -59,7 +60,7 @@ export default function FloatingContactButton({ onContactClick }: FloatingContac
       <div className="relative">
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-14 h-14 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 transform hover:scale-110"
+          className="w-14 h-14 bg-brand-gradient text-white rounded-full shadow-brand-lg flex items-center justify-center transition-all duration-300 transform hover:scale-110 hover:shadow-brand-xl"
         >
           {isExpanded ? (
             <X className="w-6 h-6" />
@@ -72,10 +73,10 @@ export default function FloatingContactButton({ onContactClick }: FloatingContac
         {!isExpanded && (
           <button
             onClick={onContactClick}
-            className="absolute -top-2 -left-2 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 transform hover:scale-110 text-xs font-bold"
-            title="Únete"
+            className="absolute -top-2 -left-2 w-8 h-8 bg-brand-primary hover:bg-brand-primary-dark text-white rounded-full shadow-brand flex items-center justify-center transition-all duration-300 transform hover:scale-110"
+            title="DóndeTú"
           >
-            Ú
+            <LogoIcon size="sm" />
           </button>
         )}
       </div>

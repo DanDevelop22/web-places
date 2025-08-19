@@ -52,45 +52,45 @@ const Modal: React.FC<ModalProps> = ({
   const getIcon = () => {
     switch (type) {
       case 'success':
-        return <CheckCircle className="w-8 h-8 text-green-500" />;
+        return <CheckCircle className="w-8 h-8 text-brand-success" />;
       case 'info':
-        return <Share2 className="w-8 h-8 text-blue-500" />;
+        return <Share2 className="w-8 h-8 text-brand-info" />;
       case 'warning':
-        return <Copy className="w-8 h-8 text-yellow-500" />;
+        return <Copy className="w-8 h-8 text-brand-warning" />;
       case 'error':
-        return <X className="w-8 h-8 text-red-500" />;
+        return <X className="w-8 h-8 text-brand-error" />;
       default:
-        return <CheckCircle className="w-8 h-8 text-green-500" />;
+        return <CheckCircle className="w-8 h-8 text-brand-success" />;
     }
   };
 
   const getBgColor = () => {
     switch (type) {
       case 'success':
-        return 'bg-green-50 dark:bg-green-900/20';
+        return 'bg-brand-success/10 dark:bg-brand-success/20';
       case 'info':
-        return 'bg-blue-50 dark:bg-blue-900/20';
+        return 'bg-brand-info/10 dark:bg-brand-info/20';
       case 'warning':
-        return 'bg-yellow-50 dark:bg-yellow-900/20';
+        return 'bg-brand-warning/10 dark:bg-brand-warning/20';
       case 'error':
-        return 'bg-red-50 dark:bg-red-900/20';
+        return 'bg-brand-error/10 dark:bg-brand-error/20';
       default:
-        return 'bg-green-50 dark:bg-green-900/20';
+        return 'bg-brand-success/10 dark:bg-brand-success/20';
     }
   };
 
   const getBorderColor = () => {
     switch (type) {
       case 'success':
-        return 'border-green-200 dark:border-green-800';
+        return 'border-brand-success/20 dark:border-brand-success/30';
       case 'info':
-        return 'border-blue-200 dark:border-blue-800';
+        return 'border-brand-info/20 dark:border-brand-info/30';
       case 'warning':
-        return 'border-yellow-200 dark:border-yellow-800';
+        return 'border-brand-warning/20 dark:border-brand-warning/30';
       case 'error':
-        return 'border-red-200 dark:border-red-800';
+        return 'border-brand-error/20 dark:border-brand-error/30';
       default:
-        return 'border-green-200 dark:border-green-800';
+        return 'border-brand-success/20 dark:border-brand-success/30';
     }
   };
 
@@ -98,7 +98,7 @@ const Modal: React.FC<ModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-brand-dark-900/50 backdrop-blur-sm"
         onClick={onClose}
       />
       
@@ -108,7 +108,7 @@ const Modal: React.FC<ModalProps> = ({
         isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0"
       )}>
         <div className={clsx(
-          "relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border",
+          "modal-brand relative rounded-brand-xl shadow-brand-xl border",
           getBgColor(),
           getBorderColor()
         )}>
@@ -116,30 +116,30 @@ const Modal: React.FC<ModalProps> = ({
           <div className="flex items-center justify-between p-6 pb-4">
             <div className="flex items-center gap-3">
               {showIcon && getIcon()}
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-lg font-semibold text-brand-dark-900 dark:text-brand-dark-100">
                 {title}
               </h3>
             </div>
             <button
               onClick={onClose}
-              className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="p-1 rounded-full hover:bg-brand-dark-100 dark:hover:bg-brand-dark-700 transition-colors"
             >
-              <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+              <X className="w-5 h-5 text-brand-dark-500 dark:text-brand-dark-400" />
             </button>
           </div>
 
           {/* Content */}
           <div className="px-6 pb-6">
-            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+            <p className="text-brand-dark-600 dark:text-brand-dark-300 leading-relaxed">
               {message}
             </p>
           </div>
 
           {/* Progress bar for auto-close */}
           {autoClose && (
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 rounded-b-2xl overflow-hidden">
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-brand-dark-200 dark:bg-brand-dark-700 rounded-b-brand-xl overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-linear"
+                className="h-full bg-brand-gradient transition-all duration-300 ease-linear"
                 style={{
                   width: '100%',
                   animation: `shrink ${autoCloseDelay}ms linear forwards`

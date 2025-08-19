@@ -1,70 +1,94 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  Edit, 
-  Trash2, 
-  Eye, 
+import {
+  Plus,
+  Search,
+  Filter,
+  Edit,
+  Trash2,
+  Eye,
   MoreVertical,
   Utensils,
-  Calendar,
+  Music,
   Star,
-  MapPin
+  MapPin,
+  Loader2,
+  Wine
 } from 'lucide-react';
 import { clsx } from 'clsx';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { loadPlacesByUser, deletePlace } from '@/services/places';
+import { Place } from '@/types';
+import { loadSocialNetworksByIds, getSocialNetworkIcon, getSocialNetworkLabel } from '@/services/socialNetworks';
 
 export default function RestaurantsPage() {
   const router = useRouter();
+  const { user } = useAuthContext();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
+  const [restaurants, setRestaurants] = useState<Place[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [restaurantSocialNetworks, setRestaurantSocialNetworks] = useState<{ [key: string]: any[] }>({});
 
-  // Datos de ejemplo - en el futuro vendrán de Firebase
-  const restaurants = [
-    {
-      id: 1,
-      name: 'La Bodeguita del Medio',
-      category: 'restaurant',
-      address: 'Calle Empedrado 207, La Habana',
-      rating: 4.5,
-      reviews: 12,
-      status: 'active',
-      lastUpdated: '2024-01-15'
-    },
-    {
-      id: 2,
-      name: 'El Floridita',
-      category: 'bar',
-      address: 'Obispo 557, La Habana',
-      rating: 4.3,
-      reviews: 8,
-      status: 'active',
-      lastUpdated: '2024-01-14'
-    },
-    {
-      id: 3,
-      name: 'Tropicana Club',
-      category: 'concert',
-      address: 'Calle 72, Marianao',
-      rating: 4.7,
-      reviews: 4,
-      status: 'active',
-      lastUpdated: '2024-01-13'
+  // Función para cargar restaurantes
+  const loadUserRestaurants = async () => {
+    if (!user?.uid) {
+      setLoading(false);
+      return;
     }
-  ];
+
+    try {
+      setLoading(true);
+      setError(null);
+      console.log('🔥 Cargando restaurantes del usuario:', user.uid);
+
+      const userPlaces = await loadPlacesByUser(user.uid);
+      setRestaurants(userPlaces);
+
+      // Cargar redes sociales para cada restaurante
+      const socialNetworksData: { [key: string]: any[] } = {};
+      for (const place of userPlaces) {
+        if (place.socialNetworks && place.socialNetworks.length > 0) {
+          try {
+            const networks = await loadSocialNetworksByIds(place.socialNetworks);
+            socialNetworksData[place.id] = networks;
+          } catch (error) {
+            console.error(`❌ Error cargando redes sociales para ${place.name}:`, error);
+            socialNetworksData[place.id] = [];
+          }
+        } else {
+          socialNetworksData[place.id] = [];
+        }
+      }
+      setRestaurantSocialNetworks(socialNetworksData);
+
+      console.log('✅ Restaurantes cargados:', userPlaces.length);
+    } catch (err) {
+      console.error('❌ Error cargando restaurantes:', err);
+      setError('Error al cargar los restaurantes desde Firestore');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Cargar restaurantes del usuario desde Firestore
+  useEffect(() => {
+    loadUserRestaurants();
+  }, [user?.uid]);
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'restaurant':
         return <Utensils className="w-4 h-4" />;
       case 'bar':
-        return <Utensils className="w-4 h-4" />;
+        return <Wine className="w-4 h-4" />;
       case 'concert':
-        return <Calendar className="w-4 h-4" />;
+        return <Music className="w-4 h-4" />;
       default:
         return <MapPin className="w-4 h-4" />;
     }
@@ -107,61 +131,147 @@ export default function RestaurantsPage() {
 
   const filteredRestaurants = restaurants.filter(restaurant => {
     const matchesSearch = restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         restaurant.address.toLowerCase().includes(searchQuery.toLowerCase());
+      restaurant.address.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || restaurant.category === selectedCategory;
-    const matchesStatus = selectedStatus === 'all' || restaurant.status === selectedStatus;
-    
+    // Por ahora todos los lugares se consideran activos
+    const matchesStatus = selectedStatus === 'all' || selectedStatus === 'active';
+
     return matchesSearch && matchesCategory && matchesStatus;
   });
 
-  const handleEdit = (id: number) => {
+  const handleEdit = (id: string) => {
     router.push(`/es/admin/restaurants/${id}/edit`);
   };
 
-  const handleView = (id: number) => {
+  const handleView = (id: string) => {
     router.push(`/es/menu/${id}`);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: string) => {
     if (confirm('¿Estás seguro de que quieres eliminar este restaurante?')) {
-      // Aquí se implementará la lógica de eliminación con Firebase
-      console.log('Eliminando restaurante:', id);
+      try {
+        setDeletingId(id);
+        await deletePlace(id);
+
+        // Actualizar la lista local
+        setRestaurants(prev => prev.filter(restaurant => restaurant.id !== id));
+
+        console.log('✅ Restaurante eliminado:', id);
+      } catch (err) {
+        console.error('❌ Error eliminando restaurante:', err);
+        alert('Error al eliminar el restaurante. Inténtalo de nuevo.');
+      } finally {
+        setDeletingId(null);
+      }
     }
   };
+
+  // Mostrar estado de carga
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Mis Restaurantes
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Gestiona todos tus establecimientos
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="brand-spinner mx-auto mb-4"></div>
+            <p className="text-brand-dark-600 dark:text-brand-dark-400">
+              Cargando restaurantes desde Firestore...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Mostrar estado de error
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Mis Restaurantes
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Gestiona todos tus establecimientos
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="text-brand-error text-xl mb-4">⚠️</div>
+            <p className="text-brand-error mb-4">{error}</p>
+            <button
+              onClick={loadUserRestaurants}
+              className="btn-brand"
+            >
+              Reintentar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-bold text-brand-dark-900 dark:text-brand-dark-100">
             Mis Restaurantes
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Gestiona todos tus establecimientos
+          <p className="text-brand-dark-600 dark:text-brand-dark-400 mt-1">
+            Gestiona todos tus establecimientos ({restaurants.length} total)
           </p>
         </div>
-        <button
-          onClick={() => router.push('/es/admin/restaurants/create')}
-          className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Crear Restaurante
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={loadUserRestaurants}
+            disabled={loading}
+            className="px-4 py-2 text-brand-dark-600 dark:text-brand-dark-400 hover:text-brand-primary dark:hover:text-brand-primary-light border border-brand-dark-300 dark:border-brand-dark-600 rounded-brand flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Recargar datos"
+          >
+            {loading ? (
+              <div className="brand-spinner w-4 h-4"></div>
+            ) : (
+              <div className="w-4 h-4">🔄</div>
+            )}
+            Recargar
+          </button>
+          <button
+            onClick={() => router.push('/es/admin/restaurants/create')}
+            className="btn-brand flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Crear Restaurante
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <div className="card-brand p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-brand-dark-400 dark:text-brand-dark-500" />
             <input
               type="text"
               placeholder="Buscar restaurantes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+              className="input-brand pl-10"
             />
           </div>
 
@@ -170,7 +280,7 @@ export default function RestaurantsPage() {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+              className="input-brand"
             >
               <option value="all">Todas las categorías</option>
               <option value="restaurant">Restaurantes</option>
@@ -184,7 +294,7 @@ export default function RestaurantsPage() {
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+              className="input-brand"
             >
               <option value="all">Todos los estados</option>
               <option value="active">Activos</option>
@@ -194,7 +304,7 @@ export default function RestaurantsPage() {
 
           {/* Results Count */}
           <div className="flex items-center justify-end">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
+            <span className="text-sm text-brand-dark-600 dark:text-brand-dark-400">
               {filteredRestaurants.length} de {restaurants.length} restaurantes
             </span>
           </div>
@@ -206,27 +316,27 @@ export default function RestaurantsPage() {
         {filteredRestaurants.map((restaurant) => (
           <div
             key={restaurant.id}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow"
+            className="card-brand overflow-hidden hover:shadow-brand transition-all duration-300"
           >
             {/* Header */}
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="p-6 border-b border-brand-dark-200 dark:border-brand-dark-700">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 bg-brand-primary/10 dark:bg-brand-primary/20 rounded-brand flex items-center justify-center">
                     {getCategoryIcon(restaurant.category)}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                    <h3 className="font-semibold text-brand-dark-900 dark:text-brand-dark-100">
                       {restaurant.name}
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm text-brand-dark-500 dark:text-brand-dark-400">
                       {getCategoryLabel(restaurant.category)}
                     </p>
                   </div>
                 </div>
                 <div className="relative">
-                  <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
-                    <MoreVertical className="w-4 h-4 text-gray-500" />
+                  <button className="p-1 hover:bg-brand-dark-100 dark:hover:bg-brand-dark-700 rounded-brand transition-colors">
+                    <MoreVertical className="w-4 h-4 text-brand-dark-500 dark:text-brand-dark-400" />
                   </button>
                 </div>
               </div>
@@ -237,8 +347,8 @@ export default function RestaurantsPage() {
               <div className="space-y-4">
                 {/* Address */}
                 <div className="flex items-start gap-2">
-                  <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <MapPin className="w-4 h-4 text-brand-dark-400 dark:text-brand-dark-500 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-brand-dark-600 dark:text-brand-dark-400">
                     {restaurant.address}
                   </p>
                 </div>
@@ -246,13 +356,13 @@ export default function RestaurantsPage() {
                 {/* Rating */}
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    <Star className="w-4 h-4 text-brand-warning fill-current" />
+                    <span className="text-sm font-medium text-brand-dark-900 dark:text-brand-dark-100">
                       {restaurant.rating}
                     </span>
                   </div>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    ({restaurant.reviews} reseñas)
+                  <span className="text-sm text-brand-dark-500 dark:text-brand-dark-400">
+                    ({restaurant.reviews?.length || 0} reseñas)
                   </span>
                 </div>
 
@@ -260,31 +370,50 @@ export default function RestaurantsPage() {
                 <div className="flex items-center justify-between">
                   <span className={clsx(
                     'px-2 py-1 text-xs font-medium rounded-full',
-                    getStatusColor(restaurant.status)
+                    getStatusColor('active')
                   )}>
-                    {getStatusLabel(restaurant.status)}
+                    Activo
                   </span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    Actualizado: {new Date(restaurant.lastUpdated).toLocaleDateString('es-ES')}
+                  <span className="text-xs text-brand-dark-500 dark:text-brand-dark-400">
+                    ID: {restaurant.id}
                   </span>
                 </div>
+
+                {/* Redes Sociales */}
+                {restaurantSocialNetworks[restaurant.id] && restaurantSocialNetworks[restaurant.id].length > 0 && (
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-brand-dark-500 dark:text-brand-dark-400">Redes:</span>
+                    <div className="flex gap-1">
+                      {restaurantSocialNetworks[restaurant.id].slice(0, 3).map((network, index) => (
+                        <span key={index} className="text-xs" title={getSocialNetworkLabel(network.type)}>
+                          {getSocialNetworkIcon(network.type)}
+                        </span>
+                      ))}
+                      {restaurantSocialNetworks[restaurant.id].length > 3 && (
+                        <span className="text-xs text-brand-dark-400 dark:text-brand-dark-500">
+                          +{restaurantSocialNetworks[restaurant.id].length - 3}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Actions */}
-            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
+            <div className="px-6 py-4 bg-brand-dark-50 dark:bg-brand-dark-800 border-t border-brand-dark-200 dark:border-brand-dark-700">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleView(restaurant.id)}
-                    className="p-2 text-gray-500 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
+                    className="p-2 text-brand-dark-500 dark:text-brand-dark-400 hover:text-brand-primary hover:bg-brand-primary/10 dark:hover:bg-brand-primary/20 rounded-brand transition-colors"
                     title="Ver en el mapa"
                   >
                     <Eye className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleEdit(restaurant.id)}
-                    className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                    className="p-2 text-brand-dark-500 dark:text-brand-dark-400 hover:text-brand-info hover:bg-brand-info/10 dark:hover:bg-brand-info/20 rounded-brand transition-colors"
                     title="Editar"
                   >
                     <Edit className="w-4 h-4" />
@@ -292,10 +421,20 @@ export default function RestaurantsPage() {
                 </div>
                 <button
                   onClick={() => handleDelete(restaurant.id)}
-                  className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                  disabled={deletingId === restaurant.id}
+                  className={clsx(
+                    "p-2 rounded-brand transition-colors",
+                    deletingId === restaurant.id
+                      ? "text-brand-dark-400 dark:text-brand-dark-500 cursor-not-allowed"
+                      : "text-brand-dark-500 dark:text-brand-dark-400 hover:text-brand-error hover:bg-brand-error/10 dark:hover:bg-brand-error/20"
+                  )}
                   title="Eliminar"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  {deletingId === restaurant.id ? (
+                    <div className="brand-spinner w-4 h-4"></div>
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </div>
@@ -306,20 +445,25 @@ export default function RestaurantsPage() {
       {/* Empty State */}
       {filteredRestaurants.length === 0 && (
         <div className="text-center py-12">
-          <Utensils className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            No se encontraron restaurantes
+          <Utensils className="w-16 h-16 text-brand-dark-400 dark:text-brand-dark-500 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-brand-dark-900 dark:text-brand-dark-100 mb-2">
+            {restaurants.length === 0
+              ? 'No tienes restaurantes registrados'
+              : 'No se encontraron restaurantes'
+            }
           </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            {searchQuery || selectedCategory !== 'all' || selectedStatus !== 'all'
-              ? 'Intenta ajustar los filtros de búsqueda'
-              : 'Comienza creando tu primer restaurante'
+          <p className="text-brand-dark-600 dark:text-brand-dark-400 mb-6">
+            {restaurants.length === 0
+              ? 'Comienza creando tu primer restaurante en DóndeTú'
+              : searchQuery || selectedCategory !== 'all' || selectedStatus !== 'all'
+                ? 'Intenta ajustar los filtros de búsqueda'
+                : 'No hay restaurantes que coincidan con los criterios'
             }
           </p>
-          {!searchQuery && selectedCategory === 'all' && selectedStatus === 'all' && (
+          {restaurants.length === 0 && (
             <button
               onClick={() => router.push('/es/admin/restaurants/create')}
-              className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 mx-auto transition-colors"
+              className="btn-brand flex items-center gap-2 mx-auto"
             >
               <Plus className="w-4 h-4" />
               Crear Primer Restaurante

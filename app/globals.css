@@ -53,12 +53,36 @@
   
   /* Card con estilo del brand */
   .card-brand {
-    @apply bg-white dark:bg-brand-dark-900 rounded-brand-lg shadow-lg hover:shadow-brand transition-all duration-300 border border-gray-100 dark:border-brand-dark-700;
+    @apply bg-white dark:bg-brand-dark-800 rounded-brand-lg shadow-lg hover:shadow-brand transition-all duration-300 border border-gray-100 dark:border-brand-dark-700;
   }
   
   /* Input con estilo del brand */
   .input-brand {
-    @apply w-full px-4 py-3 border border-gray-300 dark:border-brand-dark-600 rounded-brand focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-brand-dark-800 text-gray-900 dark:text-white transition-all duration-200;
+    @apply w-full px-4 py-3 border border-gray-300 dark:border-brand-dark-600 rounded-brand focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-brand-dark-700 text-gray-900 dark:text-white transition-all duration-200;
+  }
+  
+  /* Estilos adicionales para inputs */
+  .input-brand::placeholder {
+    @apply text-gray-500 dark:text-brand-dark-400;
+  }
+  
+  .input-brand:focus::placeholder {
+    @apply text-gray-400 dark:text-brand-dark-500;
+  }
+  
+  /* Estilos para autocompletado */
+  .input-brand:-webkit-autofill,
+  .input-brand:-webkit-autofill:hover,
+  .input-brand:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0px 1000px white inset;
+    -webkit-text-fill-color: #111827;
+  }
+  
+  .dark .input-brand:-webkit-autofill,
+  .dark .input-brand:-webkit-autofill:hover,
+  .dark .input-brand:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0px 1000px #343A40 inset;
+    -webkit-text-fill-color: white;
   }
   
   /* Badge con gradiente del brand */
@@ -74,6 +98,11 @@
   /* Texto con gradiente */
   .text-gradient {
     @apply bg-gradient-to-r from-brand-primary to-brand-secondary bg-clip-text text-transparent;
+  }
+  
+  /* Separador para formularios */
+  .separator-text {
+    @apply px-2 bg-white dark:bg-brand-dark-800 text-brand-dark-500 dark:text-brand-dark-300;
   }
 }
 
@@ -215,4 +244,47 @@
 /* Estilos para loading states */
 .skeleton-brand {
   @apply bg-gradient-to-r from-brand-dark-200 to-brand-dark-300 animate-pulse rounded-brand;
+}
+
+/* Logo styles */
+.logo-container {
+  @apply flex items-center justify-center;
+}
+
+.logo-image {
+  @apply transition-all duration-300;
+}
+
+.logo-glow {
+  filter: drop-shadow(0 0 20px rgba(255, 0, 110, 0.3));
+}
+
+.logo-hover {
+  @apply hover:scale-105;
+  filter: drop-shadow(0 0 0 rgba(255, 0, 110, 0));
+  transition: all 0.3s ease;
+}
+
+.logo-hover:hover {
+  filter: drop-shadow(0 0 25px rgba(255, 0, 110, 0.5));
+}
+
+/* Logo Icon styles */
+.logo-icon-container {
+  @apply flex items-center justify-center;
+}
+
+.logo-icon-image {
+  @apply transition-all duration-300;
+}
+
+/* Loading animations */
+@keyframes progressBar {
+  0% { width: 0%; }
+  50% { width: 70%; }
+  100% { width: 100%; }
+}
+
+.progress-bar-animation {
+  animation: progressBar 2s ease-in-out infinite;
 }

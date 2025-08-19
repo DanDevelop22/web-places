@@ -12,7 +12,7 @@ import 'swiper/css/pagination';
 
 const PhotoCarousel: React.FC<PhotoCarouselProps> = ({ photos, placeName }) => {
   return (
-    <div className="relative w-full h-64 md:h-80 rounded-lg overflow-hidden">
+    <div className="relative w-full h-64 md:h-80 rounded-brand-lg overflow-hidden">
       <Swiper
         modules={[Navigation, Pagination, Autoplay]}
         spaceBetween={0}
@@ -35,7 +35,7 @@ const PhotoCarousel: React.FC<PhotoCarouselProps> = ({ photos, placeName }) => {
                 className="w-full h-full object-cover"
                 loading="lazy"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-brand-dark-900/20 to-transparent" />
             </div>
           </SwiperSlide>
         ))}
@@ -43,7 +43,7 @@ const PhotoCarousel: React.FC<PhotoCarouselProps> = ({ photos, placeName }) => {
       
       {/* Custom navigation buttons */}
       <div className="absolute top-1/2 left-2 transform -translate-y-1/2 z-10">
-        <button className="swiper-button-prev-custom bg-white/80 hover:bg-white text-gray-800 rounded-full p-2 shadow-lg transition-all duration-200">
+        <button className="swiper-button-prev-custom bg-white/80 hover:bg-white text-brand-dark-800 rounded-full p-2 shadow-brand transition-all duration-200">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
@@ -51,7 +51,7 @@ const PhotoCarousel: React.FC<PhotoCarouselProps> = ({ photos, placeName }) => {
       </div>
       
       <div className="absolute top-1/2 right-2 transform -translate-y-1/2 z-10">
-        <button className="swiper-button-next-custom bg-white/80 hover:bg-white text-gray-800 rounded-full p-2 shadow-lg transition-all duration-200">
+        <button className="swiper-button-next-custom bg-white/80 hover:bg-white text-brand-dark-800 rounded-full p-2 shadow-brand transition-all duration-200">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>

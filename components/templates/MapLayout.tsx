@@ -8,6 +8,7 @@ import Button from '@/components/atoms/Button';
 import LanguageSelector from '@/components/atoms/LanguageSelector';
 import ContactModal from '@/components/molecules/ContactModal';
 import FloatingContactButton from '@/components/atoms/FloatingContactButton';
+import Logo from '@/components/atoms/Logo';
 import { Moon, Sun, Menu, X, Settings, MessageCircle, Info } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cleanUrlParams } from '@/utils/urlHelpers';
@@ -146,9 +147,9 @@ const MapLayout: React.FC<MapLayoutProps> = ({ places, initialPlace }) => {
   };
 
   return (
-    <div className="relative w-full h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="relative w-full h-screen bg-brand-dark-50 dark:bg-brand-dark-900">
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-20 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
+      <div className="absolute top-0 left-0 right-0 z-20 bg-white/90 dark:bg-brand-dark-900/90 backdrop-blur-sm border-b border-brand-dark-200 dark:border-brand-dark-700">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             <Button
@@ -159,9 +160,7 @@ const MapLayout: React.FC<MapLayoutProps> = ({ places, initialPlace }) => {
             >
               <Menu className="w-5 h-5" />
             </Button>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-              Mapa de Lugares
-            </h1>
+            <Logo variant="primary" size="sm" type="icon" />
           </div>
           
           <div className="flex items-center gap-2">
@@ -175,7 +174,7 @@ const MapLayout: React.FC<MapLayoutProps> = ({ places, initialPlace }) => {
               {isDarkMode ? (
                 <Sun className="w-5 h-5 text-yellow-500" />
               ) : (
-                <Moon className="w-5 h-5 text-gray-600" />
+                <Moon className="w-5 h-5 text-brand-dark-600" />
               )}
             </Button>
             <Button
@@ -184,7 +183,7 @@ const MapLayout: React.FC<MapLayoutProps> = ({ places, initialPlace }) => {
               onClick={() => setIsContactModalOpen(true)}
               className="p-2"
             >
-              <MessageCircle className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                              <MessageCircle className="w-5 h-5 text-brand-dark-600 dark:text-brand-dark-400" />
               Únete Ahora
             </Button>
             <Button
@@ -193,7 +192,7 @@ const MapLayout: React.FC<MapLayoutProps> = ({ places, initialPlace }) => {
               onClick={() => router.push('/es/landing')}
               className="p-2"
             >
-              <Info className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                              <Info className="w-5 h-5 text-brand-dark-600 dark:text-brand-dark-400" />
             </Button>
             <Button
               variant="ghost"
@@ -201,7 +200,7 @@ const MapLayout: React.FC<MapLayoutProps> = ({ places, initialPlace }) => {
               onClick={() => router.push('/es/login')}
               className="p-2"
             >
-              <Settings className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                              <Settings className="w-5 h-5 text-brand-dark-600 dark:text-brand-dark-400" />
             </Button>
           </div>
         </div>

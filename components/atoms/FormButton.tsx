@@ -22,12 +22,12 @@ export default function FormButton({
   onClick,
   className
 }: FormButtonProps) {
-  const baseClasses = 'font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseClasses = 'font-semibold rounded-brand transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105';
   
   const variantClasses = {
-    primary: 'bg-primary-600 hover:bg-primary-700 text-white focus:ring-primary-500',
-    secondary: 'border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-gray-500',
-    danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500'
+    primary: 'btn-brand',
+    secondary: 'btn-brand-secondary',
+    danger: 'bg-brand-error hover:bg-brand-error/80 text-white focus:ring-brand-error shadow-brand'
   };
 
   const sizeClasses = {
@@ -50,7 +50,7 @@ export default function FormButton({
     >
       {loading ? (
         <div className="flex items-center gap-2">
-          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+          <div className="brand-spinner"></div>
           Cargando...
         </div>
       ) : (

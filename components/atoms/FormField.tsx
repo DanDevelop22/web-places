@@ -10,8 +10,10 @@ interface FormFieldProps {
   as?: string;
   rows?: number;
   icon?: React.ReactNode;
+  endAdornment?: React.ReactNode;
   className?: string;
   required?: boolean;
+  maxLength?: number;
 }
 
 export default function FormField({
@@ -22,8 +24,10 @@ export default function FormField({
   as,
   rows,
   icon,
+  endAdornment,
   className,
-  required = false
+  required = false,
+  maxLength
 }: FormFieldProps) {
   return (
     <div className={className}>
@@ -42,13 +46,19 @@ export default function FormField({
           type={type}
           as={as}
           rows={rows}
+          maxLength={maxLength}
           className={clsx(
             'input-brand',
-            icon ? 'pl-10 pr-3' : 'px-3',
-            'py-2'
+            icon ? 'pl-10' : '',
+            endAdornment ? 'pr-12' : ''
           )}
           placeholder={placeholder}
         />
+        {endAdornment && (
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+            {endAdornment}
+          </div>
+        )}
       </div>
       <ErrorMessage name={name} component="p" className="text-brand-error dark:text-brand-error text-sm mt-1" />
     </div>

@@ -30,7 +30,7 @@ const LanguageSelector: React.FC = () => {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+        className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand-dark-700 dark:text-brand-dark-300 hover:bg-brand-dark-100 dark:hover:bg-brand-dark-800 rounded-brand transition-colors"
       >
         <Globe className="w-4 h-4" />
         <span>{currentLocaleName}</span>
@@ -38,14 +38,14 @@ const LanguageSelector: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
+        <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-brand-dark-800 border border-brand-dark-200 dark:border-brand-dark-700 rounded-brand-lg shadow-brand-lg z-50">
           <div className="py-1">
             {locales.map((loc) => (
               <button
                 key={loc}
                 onClick={() => handleLanguageChange(loc)}
-                className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                  locale === loc ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : ''
+                className={`w-full text-left px-4 py-2 text-sm hover:bg-brand-dark-100 dark:hover:bg-brand-dark-700 transition-colors ${
+                  locale === loc ? 'bg-brand-primary/10 dark:bg-brand-primary/20 text-brand-primary dark:text-brand-primary-light' : ''
                 }`}
               >
                 {getLocaleName(loc)}

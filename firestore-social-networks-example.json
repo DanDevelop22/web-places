@@ -1,0 +1,124 @@
+{
+  "socialNetworks": [
+    {
+      "type": "facebook",
+      "uid": "bodeguita-uid",
+      "url": "https://facebook.com/labodeguitadelmedio"
+    },
+    {
+      "type": "instagram",
+      "uid": "bodeguita-uid",
+      "url": "https://instagram.com/labodeguitadelmedio"
+    },
+    {
+      "type": "website",
+      "uid": "bodeguita-uid",
+      "url": "https://labodeguitadelmedio.com"
+    },
+    {
+      "type": "facebook",
+      "uid": "casa-musica-uid",
+      "url": "https://facebook.com/casadelamusicahabana"
+    },
+    {
+      "type": "instagram",
+      "uid": "casa-musica-uid",
+      "url": "https://instagram.com/casadelamusicahabana"
+    },
+    {
+      "type": "youtube",
+      "uid": "casa-musica-uid",
+      "url": "https://youtube.com/casadelamusicahabana"
+    },
+    {
+      "type": "tiktok",
+      "uid": "casa-musica-uid",
+      "url": "https://tiktok.com/@casadelamusicahabana"
+    },
+    {
+      "type": "facebook",
+      "uid": "floridita-uid",
+      "url": "https://facebook.com/elfloriditahabana"
+    },
+    {
+      "type": "instagram",
+      "uid": "floridita-uid",
+      "url": "https://instagram.com/elfloriditahabana"
+    },
+    {
+      "type": "twitter",
+      "uid": "floridita-uid",
+      "url": "https://twitter.com/elfloridita"
+    },
+    {
+      "type": "website",
+      "uid": "floridita-uid",
+      "url": "https://elfloriditahabana.com"
+    },
+    {
+      "type": "facebook",
+      "uid": "1830-uid",
+      "url": "https://facebook.com/restaurante1830"
+    },
+    {
+      "type": "instagram",
+      "uid": "1830-uid",
+      "url": "https://instagram.com/restaurante1830"
+    },
+    {
+      "type": "website",
+      "uid": "1830-uid",
+      "url": "https://restaurante1830.com"
+    },
+    {
+      "type": "facebook",
+      "uid": "teatro-nacional-uid",
+      "url": "https://facebook.com/teatronacionalcuba"
+    },
+    {
+      "type": "instagram",
+      "uid": "teatro-nacional-uid",
+      "url": "https://instagram.com/teatronacionalcuba"
+    },
+    {
+      "type": "youtube",
+      "uid": "teatro-nacional-uid",
+      "url": "https://youtube.com/teatronacionalcuba"
+    },
+    {
+      "type": "website",
+      "uid": "teatro-nacional-uid",
+      "url": "https://teatronacionalcuba.com"
+    },
+    {
+      "type": "instagram",
+      "uid": "cafe-habana-uid",
+      "url": "https://instagram.com/cafehabana"
+    },
+    {
+      "type": "website",
+      "uid": "cafe-habana-uid",
+      "url": "https://cafehabana.com"
+    },
+    {
+      "type": "facebook",
+      "uid": "dos-hermanos-uid",
+      "url": "https://facebook.com/bar2hermanos"
+    },
+    {
+      "type": "instagram",
+      "uid": "dos-hermanos-uid",
+      "url": "https://instagram.com/bar2hermanos"
+    },
+    {
+      "type": "facebook",
+      "uid": "jazz-cafe-uid",
+      "url": "https://facebook.com/jazzcafehabana"
+    },
+    {
+      "type": "instagram",
+      "uid": "jazz-cafe-uid",
+      "url": "https://instagram.com/jazzcafehabana"
+    }
+  ]
+}

@@ -32,10 +32,10 @@ const Rating: React.FC<RatingProps> = ({
         key={index}
         className={`${sizeClasses[size]} ${
           isFilled
-            ? 'fill-yellow-400 text-yellow-400'
+            ? 'fill-brand-warning text-brand-warning'
             : isHalfFilled
-            ? 'fill-yellow-400/50 text-yellow-400'
-            : 'text-gray-300'
+            ? 'fill-brand-warning/50 text-brand-warning'
+            : 'text-brand-dark-300 dark:text-brand-dark-600'
         }`}
       />
     );
@@ -45,7 +45,7 @@ const Rating: React.FC<RatingProps> = ({
     <div className={`flex items-center gap-1 ${className}`}>
       <div className="flex">{stars}</div>
       {showValue && (
-        <span className="text-sm text-gray-600 dark:text-gray-400 ml-1">
+        <span className="text-sm text-brand-dark-600 dark:text-brand-dark-400 ml-1">
           {rating.toFixed(1)}
         </span>
       )}

@@ -3,6 +3,7 @@
 import React from 'react';
 import { Mail, Phone, MapPin, Clock, MessageCircle, ArrowRight } from 'lucide-react';
 import Button from '@/components/atoms/Button';
+import Logo from '@/components/atoms/Logo';
 
 interface ContactSectionProps {
   onContactClick: () => void;
@@ -41,13 +42,16 @@ export default function ContactSection({ onContactClick }: ContactSectionProps) 
   ];
 
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 py-16">
+    <div className="bg-gradient-to-br from-brand-dark-50 to-brand-dark-100 dark:from-brand-dark-800 dark:to-brand-dark-900 py-16">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+          <div className="flex justify-center mb-6">
+            <Logo variant="primary" size="lg" />
+          </div>
+          <h2 className="text-3xl font-bold text-brand-dark-900 dark:text-brand-dark-100 mb-4">
             ¿Necesitas Ayuda?
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-lg text-brand-dark-600 dark:text-brand-dark-400 max-w-2xl mx-auto">
             ¿Tienes preguntas sobre nuestros servicios o quieres agregar tu restaurante? 
             Nuestro equipo está aquí para ayudarte.
           </p>
@@ -59,27 +63,27 @@ export default function ContactSection({ onContactClick }: ContactSectionProps) 
             return (
               <div
                 key={index}
-                className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                className="card-brand p-6 hover:shadow-brand-xl transition-all duration-300 transform hover:-translate-y-1"
               >
-                <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center mb-4">
-                  <Icon className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+                <div className="w-12 h-12 bg-brand-primary/10 dark:bg-brand-primary/30 rounded-brand flex items-center justify-center mb-4">
+                  <Icon className="w-6 h-6 text-brand-primary dark:text-brand-primary-light" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                <h3 className="text-lg font-semibold text-brand-dark-900 dark:text-brand-dark-100 mb-2">
                   {info.title}
                 </h3>
                 {info.link ? (
                   <a
                     href={info.link}
-                    className="text-primary-600 dark:text-primary-400 hover:underline font-medium"
+                    className="text-brand-primary dark:text-brand-primary-light hover:underline font-medium"
                   >
                     {info.value}
                   </a>
                 ) : (
-                  <p className="text-gray-900 dark:text-white font-medium">
+                  <p className="text-brand-dark-900 dark:text-brand-dark-100 font-medium">
                     {info.value}
                   </p>
                 )}
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                <p className="text-sm text-brand-dark-600 dark:text-brand-dark-400 mt-2">
                   {info.description}
                 </p>
               </div>
@@ -88,14 +92,14 @@ export default function ContactSection({ onContactClick }: ContactSectionProps) 
         </div>
 
         <div className="text-center">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg max-w-2xl mx-auto">
-            <div className="w-16 h-16 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-              <MessageCircle className="w-8 h-8 text-primary-600 dark:text-primary-400" />
+          <div className="card-brand p-8 max-w-2xl mx-auto">
+            <div className="w-16 h-16 bg-brand-primary/10 dark:bg-brand-primary/30 rounded-full flex items-center justify-center mx-auto mb-6">
+              <MessageCircle className="w-8 h-8 text-brand-primary dark:text-brand-primary-light" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+            <h3 className="text-xl font-semibold text-brand-dark-900 dark:text-brand-dark-100 mb-4">
               ¿Quieres Agregar tu Restaurante?
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-brand-dark-600 dark:text-brand-dark-400 mb-6">
               Únete a nuestra plataforma y conecta con miles de clientes. 
               Te ayudamos a crear tu perfil y gestionar tu presencia digital.
             </p>
@@ -126,10 +130,10 @@ export default function ContactSection({ onContactClick }: ContactSectionProps) 
         <div className="mt-12 text-center">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+              <h4 className="font-semibold text-brand-dark-900 dark:text-brand-dark-100 mb-2">
                 Servicios Incluidos
               </h4>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+              <ul className="text-sm text-brand-dark-600 dark:text-brand-dark-400 space-y-1">
                 <li>• Perfil completo del restaurante</li>
                 <li>• Menú digital interactivo</li>
                 <li>• Sistema de reseñas</li>
@@ -137,10 +141,10 @@ export default function ContactSection({ onContactClick }: ContactSectionProps) 
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+              <h4 className="font-semibold text-brand-dark-900 dark:text-brand-dark-100 mb-2">
                 Soporte Técnico
               </h4>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+              <ul className="text-sm text-brand-dark-600 dark:text-brand-dark-400 space-y-1">
                 <li>• Configuración inicial</li>
                 <li>• Capacitación del personal</li>
                 <li>• Soporte 24/7</li>
@@ -148,10 +152,10 @@ export default function ContactSection({ onContactClick }: ContactSectionProps) 
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+              <h4 className="font-semibold text-brand-dark-900 dark:text-brand-dark-100 mb-2">
                 Beneficios
               </h4>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+              <ul className="text-sm text-brand-dark-600 dark:text-brand-dark-400 space-y-1">
                 <li>• Mayor visibilidad</li>
                 <li>• Más clientes</li>
                 <li>• Gestión simplificada</li>

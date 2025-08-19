@@ -8,6 +8,9 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { isMapboxTokenValid } from '@/config/mapbox';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { createRestaurantInFirestore, validateRestaurantData, formatRestaurantData } from '@/services/restaurantCreation';
 
 // Configuración de Mapbox
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
@@ -70,9 +73,11 @@ const MenuItemSchema = Yup.object().shape({
 
 export default function CreateRestaurantPage() {
   const router = useRouter();
+  const { user } = useAuthContext();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const marker = useRef<mapboxgl.Marker | null>(null);
+  const setFieldValueRef = useRef<((field: string, value: any) => void) | null>(null);
 
   const [menuItems, setMenuItems] = useState<Array<{
     name: string;
@@ -82,6 +87,8 @@ export default function CreateRestaurantPage() {
 
   const [photos, setPhotos] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [addressLoading, setAddressLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Valores iniciales del formulario
   const initialValues = {
@@ -114,51 +121,181 @@ export default function CreateRestaurantPage() {
     }
   };
 
-  // Inicializar mapa
-  useEffect(() => {
-    if (!mapContainer.current || map.current) return;
+  // Estado para las coordenadas actuales
+  const [coordinates, setCoordinates] = useState(initialValues.coordinates);
 
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: [initialValues.coordinates.lng, initialValues.coordinates.lat],
-      zoom: 13
-    });
-
-    // Agregar controles
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-    map.current.addControl(new mapboxgl.GeolocateControl({
-      positionOptions: {
-        enableHighAccuracy: true
-      },
-      trackUserLocation: true,
-      showUserHeading: true
-    }), 'top-right');
-
-    // Crear marcador
-    marker.current = new mapboxgl.Marker({ draggable: true })
-      .setLngLat([initialValues.coordinates.lng, initialValues.coordinates.lat])
-      .addTo(map.current);
-
-    // Evento de arrastrar marcador
-    marker.current.on('dragend', () => {
-      const lngLat = marker.current?.getLngLat();
-      if (lngLat) {
-        // Actualizar coordenadas en el formulario
-        console.log('Nuevas coordenadas:', { lat: lngLat.lat, lng: lngLat.lng });
+  // Función para obtener dirección a partir de coordenadas
+  const getAddressFromCoordinates = async (lat: number, lng: number) => {
+    try {
+      setAddressLoading(true);
+      console.log('🔍 Buscando dirección para:', { lat, lng });
+      
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}&language=es&types=address`
+      );
+      
+      if (!response.ok) {
+        throw new Error('Error en la respuesta de geocodificación');
       }
-    });
+      
+      const data = await response.json();
+      
+      if (data.features && data.features.length > 0) {
+        const address = data.features[0].place_name;
+        console.log('📍 Dirección encontrada:', address);
+        return address;
+      } else {
+        console.log('⚠️ No se encontró dirección para las coordenadas');
+        return null;
+      }
+    } catch (error) {
+      console.error('❌ Error obteniendo dirección:', error);
+      return null;
+    } finally {
+      setAddressLoading(false);
+    }
+  };
 
-    // Evento de clic en el mapa
-    map.current.on('click', (e) => {
-      const { lng, lat } = e.lngLat;
-      marker.current?.setLngLat([lng, lat]);
-      console.log('Nuevas coordenadas:', { lat, lng });
-    });
+  // Verificar configuración de Mapbox al cargar
+  useEffect(() => {
+    if (!isMapboxTokenValid()) {
+      console.error('❌ Token de Mapbox no configurado. Por favor, configura NEXT_PUBLIC_MAPBOX_TOKEN en tu archivo .env.local');
+    } else {
+      console.log('✅ Token de Mapbox configurado correctamente');
+    }
+  }, []);
 
+  // Inicializar mapa usando la misma configuración que MapView
+  useEffect(() => {
+    console.log('🗺️ Inicializando mapa en formulario...');
+    
+    if (!process.env.NEXT_PUBLIC_MAPBOX_TOKEN) {
+      console.error('❌ Token de Mapbox no encontrado');
+      return;
+    }
+
+    if (!mapContainer.current) {
+      console.error('❌ Contenedor del mapa no encontrado');
+      return;
+    }
+
+    // Limpiar mapa existente de forma segura
+    if (map.current) {
+      try {
+        if (map.current.getContainer()) {
+          map.current.remove();
+        }
+      } catch (error) {
+        console.log('Error removing existing map:', error);
+      }
+      map.current = null;
+    }
+
+    // Crear nuevo mapa
+    try {
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/light-v11',
+        center: [initialValues.coordinates.lng, initialValues.coordinates.lat],
+        zoom: 13,
+        accessToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN
+      });
+      
+      // Agregar controles de navegación
+      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      
+      // Agregar control de ubicación
+      map.current.addControl(
+        new mapboxgl.GeolocateControl({
+          positionOptions: {
+            enableHighAccuracy: true
+          },
+          trackUserLocation: true,
+          showUserHeading: true
+        }),
+        'top-right'
+      );
+
+      // Crear marcador
+      marker.current = new mapboxgl.Marker({ draggable: true })
+        .setLngLat([initialValues.coordinates.lng, initialValues.coordinates.lat])
+        .addTo(map.current);
+
+      // Evento de arrastrar marcador
+      marker.current.on('dragend', () => {
+        const lngLat = marker.current?.getLngLat();
+        if (lngLat) {
+          const newCoordinates = { lat: lngLat.lat, lng: lngLat.lng };
+          console.log('📍 Marcador movido a:', newCoordinates);
+          
+          // Actualizar coordenadas inmediatamente
+          setCoordinates(newCoordinates);
+          
+          // Buscar dirección después de 3 segundos
+          setTimeout(async () => {
+            const address = await getAddressFromCoordinates(newCoordinates.lat, newCoordinates.lng);
+            if (address) {
+              console.log('📍 Actualizando campo de dirección con:', address);
+              // Usar setFieldValue de Formik para actualizar el campo
+              if (setFieldValueRef.current) {
+                setFieldValueRef.current('address', address);
+              }
+            }
+          }, 3000);
+        }
+      });
+
+      // Evento de clic en el mapa
+      map.current.on('click', (e) => {
+        const { lng, lat } = e.lngLat;
+        marker.current?.setLngLat([lng, lat]);
+        
+        const newCoordinates = { lat, lng };
+        console.log('📍 Clic en mapa:', newCoordinates);
+        
+        // Actualizar coordenadas inmediatamente
+        setCoordinates(newCoordinates);
+        
+        // Buscar dirección después de 3 segundos
+        setTimeout(async () => {
+          const address = await getAddressFromCoordinates(newCoordinates.lat, newCoordinates.lng);
+          if (address) {
+            console.log('📍 Actualizando campo de dirección con:', address);
+            // Usar setFieldValue de Formik para actualizar el campo
+            if (setFieldValueRef.current) {
+              setFieldValueRef.current('address', address);
+            }
+          }
+        }, 3000);
+      });
+
+      // Evento cuando el mapa se carga
+      map.current.on('load', () => {
+        console.log('✅ Mapa cargado correctamente en formulario');
+      });
+
+      // Evento de error
+      map.current.on('error', (e) => {
+        console.error('❌ Error en el mapa:', e);
+      });
+
+      console.log('✅ Mapa inicializado correctamente en formulario');
+
+    } catch (error) {
+      console.error('❌ Error creando mapa:', error);
+    }
+
+    // Función de limpieza
     return () => {
       if (map.current) {
-        map.current.remove();
+        try {
+          if (map.current.getContainer()) {
+            map.current.remove();
+          }
+        } catch (error) {
+          console.log('Error removing map in cleanup:', error);
+        }
+        map.current = null;
       }
     };
   }, []);
@@ -187,7 +324,13 @@ export default function CreateRestaurantPage() {
   };
 
   const handleSubmit = async (values: any, { setSubmitting, setFieldError }: any) => {
+    if (!user?.uid) {
+      setError('Debes estar autenticado para crear un restaurante');
+      return;
+    }
+
     setIsLoading(true);
+    setError(null);
 
     try {
       // Validar elementos del menú
@@ -202,19 +345,36 @@ export default function CreateRestaurantPage() {
         }
       }
 
-      // Aquí se implementará la lógica para guardar en Firebase
-      console.log('Datos del restaurante:', {
+      // Formatear datos del formulario
+      const restaurantData = formatRestaurantData({
         ...values,
+        coordinates: coordinates, // Usar las coordenadas actuales del estado
         menu: menuItems,
-        photos: photos.map(f => f.name)
+        photos: photos
       });
 
-      // Simular guardado
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Validar datos
+      const validationErrors = validateRestaurantData(restaurantData);
+      if (validationErrors.length > 0) {
+        setError(validationErrors.join(', '));
+        setSubmitting(false);
+        setIsLoading(false);
+        return;
+      }
+
+      console.log('🔥 Creando restaurante con datos:', restaurantData);
+
+      // Crear restaurante en Firestore
+      const placeId = await createRestaurantInFirestore(restaurantData, user.uid);
       
+      console.log('✅ Restaurante creado exitosamente con ID:', placeId);
+      
+      // Redirigir al panel de administración
       router.push('/es/admin/restaurants');
-    } catch (error) {
-      console.error('Error al crear restaurante:', error);
+      
+    } catch (error: any) {
+      console.error('❌ Error al crear restaurante:', error);
+      setError(error.message || 'Error al crear el restaurante. Inténtalo de nuevo.');
     } finally {
       setSubmitting(false);
       setIsLoading(false);
@@ -228,16 +388,16 @@ export default function CreateRestaurantPage() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.back()}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-2 hover:bg-brand-dark-100 dark:hover:bg-brand-dark-700 rounded-brand transition-colors"
           >
-            <ArrowLeft className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+            <ArrowLeft className="w-6 h-6 text-brand-dark-600 dark:text-brand-dark-400" />
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-3xl font-bold text-brand-dark-900 dark:text-brand-dark-100">
               Crear Restaurante
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Añade un nuevo establecimiento a la plataforma
+            <p className="text-brand-dark-600 dark:text-brand-dark-400 mt-1">
+              Añade un nuevo establecimiento a DóndeTú
             </p>
           </div>
         </div>
@@ -248,51 +408,68 @@ export default function CreateRestaurantPage() {
         validationSchema={RestaurantSchema}
         onSubmit={handleSubmit}
       >
-        {({ values, errors, touched, isSubmitting, setFieldValue }) => (
+        {({ values, errors, touched, isSubmitting, setFieldValue }) => {
+          // Guardar la función setFieldValue en la referencia para que el mapa pueda usarla
+          setFieldValueRef.current = setFieldValue;
+          
+          return (
           <Form className="space-y-8">
+            {/* Mostrar errores generales */}
+            {error && (
+              <div className="bg-brand-error/10 dark:bg-brand-error/20 border border-brand-error/20 dark:border-brand-error/30 rounded-brand p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <div className="text-brand-error">⚠️</div>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-brand-error dark:text-brand-error-light">
+                      {error}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
             {/* Información Básica */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+            <div className="card-brand p-6">
+              <h2 className="text-xl font-semibold text-brand-dark-900 dark:text-brand-dark-100 mb-6">
                 Información Básica
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-brand-dark-700 dark:text-brand-dark-300 mb-2">
                     Nombre del Restaurante *
                   </label>
                   <Field
                     name="name"
                     type="text"
                     className={clsx(
-                      'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors',
-                      errors.name && touched.name
-                        ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20'
-                        : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
+                      'input-brand',
+                      errors.name && touched.name && 'border-brand-error focus:ring-brand-error'
                     )}
                     placeholder="Ej: La Bodeguita del Medio"
                   />
-                  <ErrorMessage name="name" component="p" className="text-red-600 dark:text-red-400 text-sm mt-1" />
+                  <ErrorMessage name="name" component="p" className="text-brand-error dark:text-brand-error-light text-sm mt-1" />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-brand-dark-700 dark:text-brand-dark-300 mb-2">
                     Categoría
                   </label>
                   <Field
                     name="category"
                     as="select"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                    className="input-brand"
                   >
                     <option value="restaurant">Restaurante</option>
                     <option value="bar">Bar</option>
                     <option value="concert">Concierto/Evento</option>
                   </Field>
-                  <ErrorMessage name="category" component="p" className="text-red-600 dark:text-red-400 text-sm mt-1" />
+                  <ErrorMessage name="category" component="p" className="text-brand-error dark:text-brand-error-light text-sm mt-1" />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-brand-dark-700 dark:text-brand-dark-300 mb-2">
                     Descripción *
                   </label>
                   <Field
@@ -300,125 +477,129 @@ export default function CreateRestaurantPage() {
                     as="textarea"
                     rows={4}
                     className={clsx(
-                      'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors',
-                      errors.description && touched.description
-                        ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20'
-                        : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
+                      'input-brand',
+                      errors.description && touched.description && 'border-brand-error focus:ring-brand-error'
                     )}
                     placeholder="Describe tu restaurante..."
                   />
-                  <ErrorMessage name="description" component="p" className="text-red-600 dark:text-red-400 text-sm mt-1" />
+                  <ErrorMessage name="description" component="p" className="text-brand-error dark:text-brand-error-light text-sm mt-1" />
                 </div>
               </div>
             </div>
 
             {/* Ubicación */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+            <div className="card-brand p-6">
+              <h2 className="text-xl font-semibold text-brand-dark-900 dark:text-brand-dark-100 mb-6">
                 Ubicación
               </h2>
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-brand-dark-700 dark:text-brand-dark-300 mb-2">
                     Dirección *
                   </label>
                   <Field
                     name="address"
                     type="text"
                     className={clsx(
-                      'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors',
-                      errors.address && touched.address
-                        ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20'
-                        : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
+                      'input-brand',
+                      errors.address && touched.address && 'border-brand-error focus:ring-brand-error'
                     )}
                     placeholder="Ej: Calle Empedrado 207, La Habana"
                   />
-                  <ErrorMessage name="address" component="p" className="text-red-600 dark:text-red-400 text-sm mt-1" />
+                  <ErrorMessage name="address" component="p" className="text-brand-error dark:text-brand-error-light text-sm mt-1" />
                   
-                  <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <p className="text-sm text-blue-700 dark:text-blue-300">
-                      <MapPin className="w-4 h-4 inline mr-1" />
-                      Coordenadas: {values.coordinates.lat.toFixed(6)}, {values.coordinates.lng.toFixed(6)}
-                    </p>
-                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                  <div className="mt-4 p-4 bg-brand-info/10 dark:bg-brand-info/20 rounded-brand">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-brand-info dark:text-brand-info-light">
+                        <MapPin className="w-4 h-4 inline mr-1" />
+                        Coordenadas: {coordinates.lat.toFixed(6)}, {coordinates.lng.toFixed(6)}
+                      </p>
+                      {addressLoading && (
+                        <div className="flex items-center gap-1">
+                          <div className="brand-spinner w-3 h-3"></div>
+                          <span className="text-xs text-brand-info">Buscando dirección...</span>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xs text-brand-info dark:text-brand-info-light mt-1">
                       Haz clic en el mapa o arrastra el marcador para seleccionar la ubicación exacta
                     </p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-brand-dark-700 dark:text-brand-dark-300 mb-2">
                     Mapa
                   </label>
                   <div 
                     ref={mapContainer}
-                    className="w-full h-64 rounded-lg border border-gray-300 dark:border-gray-600"
+                    className="w-full h-64 rounded-brand border border-brand-dark-300 dark:border-brand-dark-600"
                   />
                 </div>
               </div>
             </div>
 
             {/* Contacto */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+            <div className="card-brand p-6">
+              <h2 className="text-xl font-semibold text-brand-dark-900 dark:text-brand-dark-100 mb-6">
                 Información de Contacto
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-brand-dark-700 dark:text-brand-dark-300 mb-2">
                     Teléfono
                   </label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-brand-dark-400 dark:text-brand-dark-500" />
                     <Field
                       name="phone"
                       type="tel"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                      className="input-brand pl-10"
                       placeholder="+53 7 8671374"
                     />
                   </div>
-                  <ErrorMessage name="phone" component="p" className="text-red-600 dark:text-red-400 text-sm mt-1" />
+                  <ErrorMessage name="phone" component="p" className="text-brand-error dark:text-brand-error-light text-sm mt-1" />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-brand-dark-700 dark:text-brand-dark-300 mb-2">
                     Email
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-brand-dark-400 dark:text-brand-dark-500" />
                     <Field
                       name="email"
                       type="email"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                      className="input-brand pl-10"
                       placeholder="info@restaurante.com"
                     />
                   </div>
-                  <ErrorMessage name="email" component="p" className="text-red-600 dark:text-red-400 text-sm mt-1" />
+                  <ErrorMessage name="email" component="p" className="text-brand-error dark:text-brand-error-light text-sm mt-1" />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-brand-dark-700 dark:text-brand-dark-300 mb-2">
                     Sitio Web
                   </label>
                   <div className="relative">
-                    <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-brand-dark-400 dark:text-brand-dark-500" />
                     <Field
                       name="website"
                       type="url"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                      className="input-brand pl-10"
                       placeholder="https://restaurante.com"
                     />
                   </div>
-                  <ErrorMessage name="website" component="p" className="text-red-600 dark:text-red-400 text-sm mt-1" />
+                  <ErrorMessage name="website" component="p" className="text-brand-error dark:text-brand-error-light text-sm mt-1" />
                 </div>
               </div>
             </div>
 
             {/* Horarios */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+            <div className="card-brand p-6">
+              <h2 className="text-xl font-semibold text-brand-dark-900 dark:text-brand-dark-100 mb-6">
                 Horarios de Apertura
               </h2>
               
@@ -433,13 +614,13 @@ export default function CreateRestaurantPage() {
                   sunday: 'Domingo'
                 }).map(([key, label]) => (
                   <div key={key}>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-brand-dark-700 dark:text-brand-dark-300 mb-2">
                       {label}
                     </label>
                     <Field
                       name={`hours.${key}`}
                       type="text"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                      className="input-brand"
                       placeholder="9:00 - 22:00"
                     />
                   </div>
@@ -448,8 +629,8 @@ export default function CreateRestaurantPage() {
             </div>
 
             {/* Redes Sociales */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+            <div className="card-brand p-6">
+              <h2 className="text-xl font-semibold text-brand-dark-900 dark:text-brand-dark-100 mb-6">
                 Redes Sociales
               </h2>
               
@@ -462,31 +643,31 @@ export default function CreateRestaurantPage() {
                   tiktok: 'TikTok'
                 }).map(([key, label]) => (
                   <div key={key}>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-brand-dark-700 dark:text-brand-dark-300 mb-2">
                       {label}
                     </label>
                     <Field
                       name={`socialMedia.${key}`}
                       type="url"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                      className="input-brand"
                       placeholder={`https://${key}.com/usuario`}
                     />
-                    <ErrorMessage name={`socialMedia.${key}`} component="p" className="text-red-600 dark:text-red-400 text-sm mt-1" />
+                    <ErrorMessage name={`socialMedia.${key}`} component="p" className="text-brand-error dark:text-brand-error-light text-sm mt-1" />
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Fotos */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+            <div className="card-brand p-6">
+              <h2 className="text-xl font-semibold text-brand-dark-900 dark:text-brand-dark-100 mb-6">
                 Fotos del Restaurante
               </h2>
               
               <div className="space-y-4">
-                <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center">
-                  <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-600 dark:text-gray-400 mb-2">
+                <div className="border-2 border-dashed border-brand-dark-300 dark:border-brand-dark-600 rounded-brand p-6 text-center">
+                  <Upload className="w-8 h-8 text-brand-dark-400 dark:text-brand-dark-500 mx-auto mb-2" />
+                  <p className="text-brand-dark-600 dark:text-brand-dark-400 mb-2">
                     Arrastra las fotos aquí o haz clic para seleccionar
                   </p>
                   <input
@@ -499,7 +680,7 @@ export default function CreateRestaurantPage() {
                   />
                   <label
                     htmlFor="photo-upload"
-                    className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors"
+                    className="btn-brand cursor-pointer"
                   >
                     Seleccionar Fotos
                   </label>
@@ -512,12 +693,12 @@ export default function CreateRestaurantPage() {
                         <img
                           src={URL.createObjectURL(photo)}
                           alt={`Foto ${index + 1}`}
-                          className="w-full h-24 object-cover rounded-lg"
+                          className="w-full h-24 object-cover rounded-brand"
                         />
                         <button
                           type="button"
                           onClick={() => removePhoto(index)}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                          className="absolute -top-2 -right-2 bg-brand-error text-white rounded-full p-1 hover:bg-brand-error-dark transition-colors"
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -529,15 +710,15 @@ export default function CreateRestaurantPage() {
             </div>
 
             {/* Menú */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div className="card-brand p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                <h2 className="text-xl font-semibold text-brand-dark-900 dark:text-brand-dark-100">
                   Menú
                 </h2>
                 <button
                   type="button"
                   onClick={addMenuItem}
-                  className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                  className="btn-brand flex items-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
                   Añadir Plato
@@ -546,34 +727,34 @@ export default function CreateRestaurantPage() {
               
               <div className="space-y-4">
                 {menuItems.map((item, index) => (
-                  <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-brand-dark-50 dark:bg-brand-dark-800 rounded-brand">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-brand-dark-700 dark:text-brand-dark-300 mb-2">
                         Nombre del Plato
                       </label>
                       <input
                         type="text"
                         value={item.name}
                         onChange={(e) => updateMenuItem(index, 'name', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                        className="input-brand"
                         placeholder="Ej: Ropa Vieja"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-brand-dark-700 dark:text-brand-dark-300 mb-2">
                         Descripción
                       </label>
                       <input
                         type="text"
                         value={item.description}
                         onChange={(e) => updateMenuItem(index, 'description', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                        className="input-brand"
                         placeholder="Descripción del plato"
                       />
                     </div>
                     <div className="flex items-end gap-2">
                       <div className="flex-1">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label className="block text-sm font-medium text-brand-dark-700 dark:text-brand-dark-300 mb-2">
                           Precio (€)
                         </label>
                         <input
@@ -581,14 +762,14 @@ export default function CreateRestaurantPage() {
                           step="0.01"
                           value={item.price}
                           onChange={(e) => updateMenuItem(index, 'price', parseFloat(e.target.value) || 0)}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                          className="input-brand"
                           placeholder="0.00"
                         />
                       </div>
                       <button
                         type="button"
                         onClick={() => removeMenuItem(index)}
-                        className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                        className="p-2 text-brand-error hover:bg-brand-error/10 dark:hover:bg-brand-error/20 rounded-brand transition-colors"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -597,7 +778,7 @@ export default function CreateRestaurantPage() {
                 ))}
                 
                 {menuItems.length === 0 && (
-                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  <div className="text-center py-8 text-brand-dark-500 dark:text-brand-dark-400">
                     <Utensils className="w-12 h-12 mx-auto mb-2 opacity-50" />
                     <p>No hay platos en el menú</p>
                     <p className="text-sm">Haz clic en "Añadir Plato" para comenzar</p>
@@ -611,7 +792,7 @@ export default function CreateRestaurantPage() {
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="px-6 py-3 border border-brand-dark-300 dark:border-brand-dark-600 rounded-brand text-brand-dark-700 dark:text-brand-dark-300 hover:bg-brand-dark-50 dark:hover:bg-brand-dark-700 transition-colors"
               >
                 Cancelar
               </button>
@@ -619,15 +800,13 @@ export default function CreateRestaurantPage() {
                 type="submit"
                 disabled={isSubmitting || isLoading}
                 className={clsx(
-                  'px-6 py-3 bg-primary-600 text-white rounded-lg font-medium transition-colors',
-                  (isSubmitting || isLoading)
-                    ? 'opacity-50 cursor-not-allowed'
-                    : 'hover:bg-primary-700'
+                  'btn-brand',
+                  (isSubmitting || isLoading) && 'opacity-50 cursor-not-allowed'
                 )}
               >
                 {isSubmitting || isLoading ? (
                   <div className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <div className="brand-spinner w-4 h-4"></div>
                     Creando...
                   </div>
                 ) : (
@@ -636,7 +815,8 @@ export default function CreateRestaurantPage() {
               </button>
             </div>
           </Form>
-        )}
+        );
+        }}
       </Formik>
     </div>
   );

@@ -30,80 +30,80 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
       icon: Facebook,
       label: 'Facebook',
       url: socialMedia.facebook,
-      color: 'hover:bg-blue-500 hover:text-white',
-      bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-      borderColor: 'border-blue-200 dark:border-blue-800',
-      iconColor: 'text-blue-600 dark:text-blue-400'
+      color: 'hover:bg-brand-info hover:text-white',
+      bgColor: 'bg-brand-info/10 dark:bg-brand-info/20',
+      borderColor: 'border-brand-info/20 dark:border-brand-info/30',
+      iconColor: 'text-brand-info'
     },
     {
       key: 'instagram',
       icon: Instagram,
       label: 'Instagram',
       url: socialMedia.instagram,
-      color: 'hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white',
-      bgColor: 'bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20',
-      borderColor: 'border-purple-200 dark:border-purple-800',
-      iconColor: 'text-purple-600 dark:text-purple-400'
+      color: 'hover:bg-brand-gradient hover:text-white',
+      bgColor: 'bg-brand-primary/10 dark:bg-brand-primary/20',
+      borderColor: 'border-brand-primary/20 dark:border-brand-primary/30',
+      iconColor: 'text-brand-primary'
     },
     {
       key: 'twitter',
       icon: Twitter,
       label: 'Twitter',
       url: socialMedia.twitter,
-      color: 'hover:bg-sky-500 hover:text-white',
-      bgColor: 'bg-sky-50 dark:bg-sky-900/20',
-      borderColor: 'border-sky-200 dark:border-sky-800',
-      iconColor: 'text-sky-600 dark:text-sky-400'
+      color: 'hover:bg-brand-secondary hover:text-white',
+      bgColor: 'bg-brand-secondary/10 dark:bg-brand-secondary/20',
+      borderColor: 'border-brand-secondary/20 dark:border-brand-secondary/30',
+      iconColor: 'text-brand-secondary'
     },
     {
       key: 'youtube',
       icon: Youtube,
       label: 'YouTube',
       url: socialMedia.youtube,
-      color: 'hover:bg-red-500 hover:text-white',
-      bgColor: 'bg-red-50 dark:bg-red-900/20',
-      borderColor: 'border-red-200 dark:border-red-800',
-      iconColor: 'text-red-600 dark:text-red-400'
+      color: 'hover:bg-brand-error hover:text-white',
+      bgColor: 'bg-brand-error/10 dark:bg-brand-error/20',
+      borderColor: 'border-brand-error/20 dark:border-brand-error/30',
+      iconColor: 'text-brand-error'
     },
     {
       key: 'tiktok',
       icon: TikTokIcon,
       label: 'TikTok',
       url: socialMedia.tiktok,
-      color: 'hover:bg-black hover:text-white',
-      bgColor: 'bg-gray-50 dark:bg-gray-900/20',
-      borderColor: 'border-gray-200 dark:border-gray-800',
-      iconColor: 'text-gray-600 dark:text-gray-400'
+      color: 'hover:bg-brand-dark-900 hover:text-white',
+      bgColor: 'bg-brand-dark-100 dark:bg-brand-dark-800',
+      borderColor: 'border-brand-dark-200 dark:border-brand-dark-700',
+      iconColor: 'text-brand-dark-600 dark:text-brand-dark-400'
     },
     {
       key: 'website',
       icon: Globe,
       label: 'Sitio Web',
       url: socialMedia.website,
-      color: 'hover:bg-gray-600 hover:text-white',
-      bgColor: 'bg-gray-50 dark:bg-gray-900/20',
-      borderColor: 'border-gray-200 dark:border-gray-800',
-      iconColor: 'text-gray-600 dark:text-gray-400'
+      color: 'hover:bg-brand-dark-600 hover:text-white',
+      bgColor: 'bg-brand-dark-50 dark:bg-brand-dark-900/20',
+      borderColor: 'border-brand-dark-200 dark:border-brand-dark-700',
+      iconColor: 'text-brand-dark-600 dark:text-brand-dark-400'
     },
     {
       key: 'phone',
       icon: Phone,
       label: 'Teléfono',
       url: socialMedia.phone ? `tel:${socialMedia.phone}` : undefined,
-      color: 'hover:bg-green-500 hover:text-white',
-      bgColor: 'bg-green-50 dark:bg-green-900/20',
-      borderColor: 'border-green-200 dark:border-green-800',
-      iconColor: 'text-green-600 dark:text-green-400'
+      color: 'hover:bg-brand-success hover:text-white',
+      bgColor: 'bg-brand-success/10 dark:bg-brand-success/20',
+      borderColor: 'border-brand-success/20 dark:border-brand-success/30',
+      iconColor: 'text-brand-success'
     },
     {
       key: 'email',
       icon: Mail,
       label: 'Email',
       url: socialMedia.email ? `mailto:${socialMedia.email}` : undefined,
-      color: 'hover:bg-orange-500 hover:text-white',
-      bgColor: 'bg-orange-50 dark:bg-orange-900/20',
-      borderColor: 'border-orange-200 dark:border-orange-800',
-      iconColor: 'text-orange-600 dark:text-orange-400'
+      color: 'hover:bg-brand-accent hover:text-white',
+      bgColor: 'bg-brand-accent/10 dark:bg-brand-accent/20',
+      borderColor: 'border-brand-accent/20 dark:border-brand-accent/30',
+      iconColor: 'text-brand-accent'
     }
   ];
 
@@ -123,10 +123,10 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
   return (
     <div className={clsx('space-y-4', className)}>
       <div className="flex items-center gap-2">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <h3 className="text-lg font-semibold text-brand-dark-900 dark:text-brand-dark-100">
           Redes Sociales
         </h3>
-        <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+        <div className="flex-1 h-px bg-brand-dark-200 dark:bg-brand-dark-700" />
       </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -137,7 +137,7 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
               key={link.key}
               onClick={() => handleLinkClick(link.url!, link.label)}
               className={clsx(
-                'flex items-center gap-3 p-4 rounded-xl border transition-all duration-200',
+                'flex items-center gap-3 p-4 rounded-brand-lg border transition-all duration-200',
                 'transform hover:scale-105 active:scale-95',
                 'group relative overflow-hidden min-h-[70px]',
                 link.bgColor,
@@ -147,7 +147,7 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
               title={`Abrir ${link.label}`}
             >
               <Icon className={clsx('w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110', link.iconColor)} />
-              <span className="text-base font-medium text-gray-700 dark:text-gray-300 flex-1 text-left leading-tight">
+              <span className="text-base font-medium text-brand-dark-700 dark:text-brand-dark-300 flex-1 text-left leading-tight">
                 {link.label}
               </span>
               <ExternalLink className="w-5 h-5 flex-shrink-0 opacity-60 group-hover:opacity-100 transition-opacity" />

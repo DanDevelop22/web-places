@@ -6,6 +6,7 @@ import { MapPin, Utensils, Star, Users, ArrowRight, Play, MessageCircle } from '
 import Button from '@/components/atoms/Button';
 import ContactSection from '@/components/molecules/ContactSection';
 import ContactModal from '@/components/molecules/ContactModal';
+import Logo from '@/components/atoms/Logo';
 
 export default function LandingPage() {
   const router = useRouter();
@@ -48,12 +49,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
-                <MapPin className="w-6 h-6 text-white" />
-              </div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                Mapa de Lugares
-              </h1>
+              <Logo variant="primary" size="md" />
             </div>
             <div className="flex items-center gap-4">
               <Button
@@ -82,6 +78,9 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary-50 via-white to-primary-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-20">
         <div className="container mx-auto px-4 text-center">
+          <div className="flex justify-center mb-8">
+            <Logo variant="primary" size="xl" className="logo-glow" />
+          </div>
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
             Descubre La Habana
             <span className="text-primary-600 dark:text-primary-400"> Gastronómica</span>

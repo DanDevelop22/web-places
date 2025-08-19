@@ -6,10 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "populate-firestore": "node scripts/populate-firestore.js",
+    "test-firestore-helpers": "node scripts/test-firestore-helpers.js"
   },
   "dependencies": {
     "clsx": "^2.0.0",
+    "firebase": "^12.1.0",
     "formik": "^2.4.6",
     "lucide-react": "^0.294.0",
     "mapbox-gl": "^2.15.0",
