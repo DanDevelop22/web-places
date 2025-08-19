@@ -2,18 +2,93 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Importar fuentes de Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+/* Variables CSS personalizadas para DóndeTú */
+:root {
+  --brand-primary: #FF006E;
+  --brand-secondary: #FF6B35;
+  --brand-accent: #FF8E53;
+  --brand-dark: #1A1D20;
+  --brand-light: #F8F9FA;
+  
+  /* Gradientes */
+  --brand-gradient: linear-gradient(135deg, #FF006E 0%, #FF6B35 100%);
+  --brand-gradient-horizontal: linear-gradient(90deg, #FF006E 0%, #FF6B35 100%);
+  
+  /* Sombras */
+  --brand-shadow: 0 4px 14px 0 rgba(255, 0, 110, 0.25);
+  --brand-glow: 0 0 20px rgba(255, 0, 110, 0.5);
+}
+
+/* Estilos base personalizados */
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', system-ui, sans-serif;
+  }
+  
+  /* Estilos para el modo oscuro */
+  .dark {
+    --brand-light: #1A1D20;
+    --brand-dark: #F8F9FA;
+  }
+}
+
+/* Componentes personalizados para DóndeTú */
+@layer components {
+  /* Botón principal con gradiente del brand */
+  .btn-brand {
+    @apply bg-gradient-to-r from-brand-primary to-brand-secondary text-white font-semibold py-3 px-6 rounded-brand shadow-brand hover:shadow-brand-lg transition-all duration-300 transform hover:scale-105;
+  }
+  
+  /* Botón secundario */
+  .btn-brand-secondary {
+    @apply bg-transparent border-2 border-brand-primary text-brand-primary font-semibold py-3 px-6 rounded-brand hover:bg-brand-primary hover:text-white transition-all duration-300;
+  }
+  
+  /* Card con estilo del brand */
+  .card-brand {
+    @apply bg-white dark:bg-brand-dark-900 rounded-brand-lg shadow-lg hover:shadow-brand transition-all duration-300 border border-gray-100 dark:border-brand-dark-700;
+  }
+  
+  /* Input con estilo del brand */
+  .input-brand {
+    @apply w-full px-4 py-3 border border-gray-300 dark:border-brand-dark-600 rounded-brand focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-brand-dark-800 text-gray-900 dark:text-white transition-all duration-200;
+  }
+  
+  /* Badge con gradiente del brand */
+  .badge-brand {
+    @apply bg-gradient-to-r from-brand-primary to-brand-secondary text-white px-3 py-1 rounded-full text-sm font-medium;
+  }
+  
+  /* Logo glow effect */
+  .logo-glow {
+    filter: drop-shadow(0 0 10px rgba(255, 0, 110, 0.5));
+  }
+  
+  /* Texto con gradiente */
+  .text-gradient {
+    @apply bg-gradient-to-r from-brand-primary to-brand-secondary bg-clip-text text-transparent;
+  }
+}
+
 /* Estilos personalizados para Mapbox */
 .mapboxgl-map {
   font-family: inherit;
 }
 
 .mapboxgl-ctrl-group {
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: var(--brand-shadow);
 }
 
 .mapboxgl-ctrl-group button {
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
 /* Estilos para marcadores personalizados */
@@ -30,18 +105,18 @@
   animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
-/* Estilos para Swiper */
+/* Estilos para Swiper actualizados con colores del brand */
 .swiper-pagination-bullet {
   background: rgba(255, 255, 255, 0.8) !important;
 }
 
 .swiper-pagination-bullet-active {
-  background: #0ea5e9 !important;
+  background: var(--brand-primary) !important;
 }
 
 .swiper-button-next,
 .swiper-button-prev {
-  color: #0ea5e9 !important;
+  color: var(--brand-primary) !important;
 }
 
 /* Estilos para modo oscuro */
@@ -65,33 +140,79 @@
   animation: fadeInUp 0.3s ease-out;
 }
 
-/* Estilos para scrollbar personalizada */
+/* Animación de carga con colores del brand */
+@keyframes brandSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.brand-spinner {
+  border: 3px solid rgba(255, 0, 110, 0.1);
+  border-top: 3px solid var(--brand-primary);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: brandSpin 1s linear infinite;
+}
+
+/* Estilos para scrollbar personalizada con colores del brand */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
   background: #f1f1f1;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
+  background: linear-gradient(180deg, var(--brand-primary), var(--brand-secondary));
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: linear-gradient(180deg, var(--brand-secondary), var(--brand-primary));
 }
 
 .dark ::-webkit-scrollbar-track {
-  background: #374151;
+  background: var(--brand-dark-800);
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #6b7280;
+  background: linear-gradient(180deg, var(--brand-primary), var(--brand-secondary));
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: linear-gradient(180deg, var(--brand-secondary), var(--brand-primary));
+}
+
+/* Estilos para el header/navbar */
+.navbar-brand {
+  @apply bg-white/90 dark:bg-brand-dark-900/90 backdrop-blur-md border-b border-gray-200 dark:border-brand-dark-700;
+}
+
+/* Estilos para el footer */
+.footer-brand {
+  @apply bg-brand-dark-900 text-white;
+}
+
+/* Estilos para modales */
+.modal-brand {
+  @apply bg-white dark:bg-brand-dark-800 rounded-brand-xl shadow-brand-xl;
+}
+
+/* Estilos para tooltips */
+.tooltip-brand {
+  @apply bg-brand-dark-900 text-white px-3 py-2 rounded-brand text-sm shadow-brand;
+}
+
+/* Estilos para notificaciones */
+.notification-brand {
+  @apply bg-gradient-to-r from-brand-primary to-brand-secondary text-white px-4 py-3 rounded-brand shadow-brand;
+}
+
+/* Estilos para loading states */
+.skeleton-brand {
+  @apply bg-gradient-to-r from-brand-dark-200 to-brand-dark-300 animate-pulse rounded-brand;
 }
